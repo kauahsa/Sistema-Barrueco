@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no, address=no">
+
+    <link rel="shortcut icon" href="imagens/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <title>Barrueco Advogados | Escritório de Advocacia</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+
+<body>
+    <header style="background-color: #695643;">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="imagens/logo.png" alt="Barrueco Advogados Logo">
+                    <h1></h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#inicio" class="menu-link">Início</a></li>
+                        <li><a href="paginas/sobre.html" class="menu-link">Sobre</a></li>
+                        <li><a href="paginas/atuacao.html" class="menu-link">Atuação</a></li>
+                        <li><a href="paginas/equipe.html" class="menu-link">Equipe</a></li>
+                        <li class="dropdown">
+                            <a href="paginas/noticias.html" class="menu-link">Notícias</a>
+                        </li>
+                        <li><a href="paginas/contato.html" class="menu-link">Contato</a></li>
+                        <li><a href="https://portaldeservicos.pdpj.jus.br/consulta"><button style="margin-left: 90px;"
+                                    id="btn-header">Acompanhe seu processo</button></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="mobile-menu">
+            <div class="mobile-logo">
+                <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="imagens/logo.png"
+                    alt="Barrueco Advogados Logo">
+            </div>
+            <div class="mobile-menu-icon" id="menu-toggle">
+
+                <i class="fas fa-bars"
+                    style="margin-top: 12px; padding-right: 50px; font-size: 25px; color: white;"></i>
+
+            </div>
+        </div>
+
+        <div class="mobile-menu-overlay" id="menu-overlay"></div>
+
+        <div class="mobile-menu-content" id="menu-content">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-logo">
+                    <img src="imagens/logo.png" alt="Barrueco Advogados Logo">
+                </div>
+                <div class="mobile-close-btn" id="menu-close">
+                    <span class="close-line close-line1"></span>
+                    <span class="close-line close-line2"></span>
+                </div>
+            </div>
+
+            <nav class="mobile-nav">
+                <ul class="mobile-menu-list">
+                    <li class="mobile-menu-item">
+                        <a href="#inicio" class="mobile-menu-link">
+                            <i class="fas fa-home"></i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="paginas/sobre.html" class="mobile-menu-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Sobre</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="paginas/atuacao.html" class="mobile-menu-link">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Atuação</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="paginas/equipe.html" class="mobile-menu-link">
+                            <i class="fas fa-users"></i>
+                            <span>Equipe</span>
+                        </a>
+                    </li>
+            
+                    <li class="mobile-menu-item">
+                        <a href="paginas/noticias.html" class="mobile-menu-link">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Notícias</span>
+                        </a>
+                    </li>
+                    
+                    <li class="mobile-menu-item">
+                        <a href="paginas/contato.html" class="mobile-menu-link">
+                            <i class="fas fa-phone"></i>
+                            <span>Contato</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mobile-menu-footer">
+
+                <div class="mobile-social-links">
+                    <a target="_blank" href="https://www.instagram.com/barruecoadvogados/ " class="mobile-social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false " class="mobile-social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a target="_blank" href="https://wa.me/5514981111872" class="mobile-social-link">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a target="_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados "><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <section style="background-color: rgb(255, 255, 255);" id="inicio" class="hero">
+        <div class="container">
+            <div style="color: #695643;" class="hero-content">
+                <h2>Segurança Jurídica, Experiência e Soluções Personalizadas</h2>
+                <p>Com mais de 20 anos de atuação, o
+                    escritório
+                    Barrueco Advogados Associados oferece
+                    soluções jurídicas seguras e estratégicas, com atendimento direto e
+                    personalizado.
+                    Atuamos com excelência nas áreas de Direito Tributário, Empresarial, Cível e Trabalhista,
+                    sempre pautados na ética profissional, rigor técnico e compromisso com os resultados de
+                    nossos clientes.</p>
+                <div class="cta">
+                    <a href="paginas/contato.html" class="btn">Agende uma Reunião</a>
+                    <a style="color: #695643;" href="paginas/atuacao.html" class=" btn-outline btn">Nossas Áreas</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="testemunha" class="testimonials section">
+    <div class="container">
+        <div class="section-title">
+            <h3>Depoimentos</h3>
+        </div>
+        
+        <div class="swiper testimonials-swiper">
+            <div class="swiper-wrapper">
+                <!-- Depoimento 1 -->
+                <div class="swiper-slide">
+                    <div class="testimonial">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p>"A SML Brasil é uma das mais importantes empresas brasileiras de soluções de gestão de processos, documentos e câmbio. Estamos com o escritório há 10 anos, atuando em questões tributárias, jurídicas e projetos de M&A. A assertividade de seus trabalhos, sempre objetivos e direto ao ponto, é fundamental para a SML Brasil."</p>
+                        <div class="client">
+                            <div class="client-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="client-info">
+                                <h5>José Roberto de Lazari</h5>
+                                <p>Presidente da SML Brasil</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 2 -->
+                <div class="swiper-slide">
+                    <div class="testimonial">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p>"Nossa empresa está em total tranquilidade jurídica, o escritório tem uma visão que previne de forma efetiva qualquer problema que poderia impactar nossa empresa e nosso desenvolvimento. Trabalham em altíssimo nível e discutem possíveis problemas antes de se tornarem reais e complexos."</p>
+                        <div class="client">
+                            <div class="client-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="client-info">
+                                <h5>Renato Intakli</h5>
+                                <p>CEO - PARALLAXIS ECONOMICS & DATA SCIENCE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 3 -->
+                <div class="swiper-slide">
+                    <div class="testimonial">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p>"Temos o escritório como braço jurídico da KIMAN SOLUTIONS há 9 anos. É um dos nossos principais PARCEIROS, que se destaca pela agilidade e pelo elevado nível de qualidade nos serviços prestados. Teve papel fundamental na estruturação dos contratos de venda de Licenciamento, Manutenção e Implantação do nosso ERP KIPREV, que opera há mais de 9 anos sem nenhum problema."</p>
+                        <div class="client">
+                            <div class="client-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="client-info">
+                                <h5>Marcos Eduardo Bandeira Maia</h5>
+                                <p>Presidente KIMAN SOLUTIONS LTDA.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 4 -->
+                <div class="swiper-slide">
+                    <div class="testimonial">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p>"A #Startups foi essencial para a 1PIC desde o primeiro dia de concepção de nossa empresa. Esteve ao nosso lado em todos os momentos que precisamos e nos orientou a tomar as melhores decisões, nos deixando seguros."</p>
+                        <div class="client">
+                            <div class="client-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="client-info">
+                                <h5>Carlos F. Boscoe Alexander Anderson</h5>
+                                <p>Cliente da #Startups 1PIC</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 5 -->
+                <div class="swiper-slide">
+                    <div class="testimonial">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p>"Estamos com o escritório desde o final de 2013. Temos confiança neles, coisa que nunca tive em outros escritórios. A segurança que o Dr. Fernando passa e a certeza de que tudo vai dar certo é o ponto forte da nossa parceria!"</p>
+                        <div class="client">
+                            <div class="client-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="client-info">
+                                <h5>Wellington Paschoal</h5>
+                                <p>Cliente da #B Everlast Energy Drink</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navegação -->
+            <div class="swiper-button-next testimonials-next"></div>
+            <div class="swiper-button-prev testimonials-prev"></div>
+            <div class="swiper-pagination testimonials-pagination"></div>
+        </div>
+    </div>
+</section>
+
+    <section id="contato" class="contact section">
+        <div class="container">
+            <div class="section-title">
+                <h3 style="color: white;">Entre em Contato</h3>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Fale Conosco</h3>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p style="text-decoration: none; color: white;">Matriz: Av.Cidade Jardim, 377 - 9°andar - Itaim Bibi - São Paulo/SP - CEP <span style="text-decoration:none; color: white; text-underline-offset: 5px;">01453-000</span> <br><br> Filial: Rua Iporans, 737 - Sala 10, Centro - Tupã/SP - CEP 17601-170</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                    
+                            <p>
+                                <a href="tel:1131681111" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                    (11) 3168-1111
+                                </a> <br> <a href="tel:1150438875" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                (11) 5043-8875
+                            </a> <br>
+                             <a href="tel:1434914492" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                (14) 3491-4492
+                            </a> 
+                            </p>
+                            </div>
+                          
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <p>contato@barruecoadvogados.com.br</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <p>Segunda a Sexta: 8h às 18h</p>
+                        </div>
+                    </div>
+                   <div class="social-icons">
+                        <a target="_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados "><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href=" https://www.instagram.com/barruecoadvogados/ "><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false"><i class="fab fa-linkedin-in"></i></a>
+                        <a target="_blank" href="https://wa.me/5514981111872"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" name="nome" placeholder="Seu nome" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Seu e-mail" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="telefone" placeholder="Seu telefone">
+                        </div>
+                        <div class="form-group">
+                            <textarea name="mensagem" rows="5" placeholder="Sua mensagem" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-form">Enviar Mensagem</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+     <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#inicio">Início</a>
+                <a href="paginas/sobre.html">Sobre</a>
+                <a href="paginas/atuacao.html">Atuação</a>
+                <a href="paginas/equipe.html">Equipe</a>
+                <a href="paginas/noticia.html">Notícias</a>
+                <a href="#contato">Contato</a>
+            </div>
+            <p>&copy; 2025 Barrueco Advogados. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+</body>
+
+</html>

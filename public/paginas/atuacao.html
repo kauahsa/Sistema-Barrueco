@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no, address=no">
+    <link rel="shortcut icon" href="../imagens/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <title>Áreas de Atuação | Barrueco Advogados</title>
+    <style>
+        /* Hero Section */
+        .hero-atuacao {
+            background: linear-gradient(135deg, #695643 0%, #48626c 100%);
+            color: white;
+            padding: 180px 0 80px;
+            text-align: center;
+        }
+
+        .hero-atuacao h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-atuacao p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* Areas Section */
+        .areas-detailed {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: #695643;
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .area-detailed {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .area-detailed:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .area-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .area-icon {
+            background: linear-gradient(135deg, #695643, #48626c);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-right: 25px;
+        }
+
+        .area-title {
+            color: #695643;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .area-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .area-services {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .area-services h4 {
+            color: #695643;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .services-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .services-list li {
+            list-style: none;
+            padding: 5px 0;
+            color: #666;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .services-list li:before {
+            content: "✓";
+            color: #695643;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .area-cta {
+            text-align: center;
+        }
+
+        .btn-area {
+            background: linear-gradient(135deg, #695643, #48626c);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-area:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(105, 86, 67, 0.3);
+        }
+
+        /* Contact CTA */
+        .contact-cta {
+            background: linear-gradient(135deg, #695643, #48626c);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .contact-cta h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .contact-cta p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .btn-contact {
+            background-color: #f0c674;
+            color: #695643;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin: 0 10px;
+        }
+
+        .btn-contact:hover {
+            background-color: #e6b85c;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background-color: white;
+            color: #695643;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #f0c674;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+
+
+            .mobile-menu {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+
+            .hero-atuacao h1 {
+                font-size: 2rem;
+            }
+
+            .hero-atuacao p {
+                font-size: 1rem;
+            }
+
+            .area-detailed {
+                padding: 25px;
+            }
+
+            .area-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .area-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .services-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+   <header style="background-color: #695643;">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                    <h1></h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="../index.html#inicio" class="menu-link">Início</a></li>
+                        <li><a href="sobre.html" class="menu-link">Sobre</a></li>
+                        <li><a href="atuacao.html" class="menu-link active">Atuação</a></li>
+                        <li><a href="equipe.html" class="menu-link">Equipe</a></li>
+                        <li><a href="noticias.html" class="menu-link">Notícias</a></li>
+                        <li><a href="contato.html" class="menu-link">Contato</a></li>
+                        <li><a href="https://portaldeservicos.pdpj.jus.br/consulta"><button style="margin-left: 90px;" id="btn-header">Acompanhe seu processo</button></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="mobile-menu">
+            <div class="mobile-logo">
+                <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
+                    alt="Barrueco Advogados Logo">
+            </div>
+            <div class="mobile-menu-icon" id="menu-toggle">
+
+                <i class="fas fa-bars"
+                    style="margin-top: 12px; padding-right: 50px; font-size: 25px; color: white;"></i>
+
+            </div>
+        </div>
+
+        <div class="mobile-menu-overlay" id="menu-overlay"></div>
+
+        <div class="mobile-menu-content" id="menu-content">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-logo">
+                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                </div>
+                <div class="mobile-close-btn" id="menu-close">
+                    <span class="close-line close-line1"></span>
+                    <span class="close-line close-line2"></span>
+                </div>
+            </div>
+
+            <nav class="mobile-nav">
+                <ul class="mobile-menu-list">
+                    <li class="mobile-menu-item">
+                        <a href="../index.html#inicio" class="mobile-menu-link">
+                            <i class="fas fa-home"></i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="sobre.html" class="mobile-menu-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Sobre</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="atuacao.html" class="mobile-menu-link">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Atuação</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="equipe.html" class="mobile-menu-link">
+                            <i class="fas fa-users"></i>
+                            <span>Equipe</span>
+                        </a>
+                    </li>
+            
+                    <li class="mobile-menu-item">
+                        <a href="noticias.html" class="mobile-menu-link">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Notícias</span>
+                        </a>
+                    </li>
+                    
+                    <li class="mobile-menu-item">
+                        <a href="contato.html" class="mobile-menu-link">
+                            <i class="fas fa-phone"></i>
+                            <span>Contato</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mobile-menu-footer">
+
+                <div class="mobile-social-links">
+                    <a target="_blank" href="https://www.instagram.com/barruecoadvogados/ " class="mobile-social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false " class="mobile-social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a target="_blank" href="https://wa.me/5514981111872" class="mobile-social-link">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a target="_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados "><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-atuacao">
+        <div class="container">
+            <h1>Áreas de Atuação</h1>
+            <p>Oferecemos soluções jurídicas especializadas em diversas áreas do direito, com foco na excelência e no
+                atendimento personalizado às necessidades de cada cliente.</p>
+        </div>
+    </section>
+
+    <section class="areas-detailed">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nossas Especialidades</h2>
+                <p>Conheça em detalhes como podemos ajudar você em cada área do Direito</p>
+            </div>
+
+            <div class="area-detailed">
+                <div class="area-header">
+                    <div class="area-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="area-title">Direito Tributário</h3>
+                </div>
+                <p class="area-description">
+                    Estruturação de planejamentos tributários preventivos, revisão
+                    de carga fiscal,
+                    recuperação de créditos tributários, defesa administrativa e judicial
+                    em execuções fiscais, autos de infração, além de orientação estratégica em
+                    tributação de holdings e reorganizações patrimoniais.
+                </p>
+                <div class="area-services">
+                    <h4>Serviços Oferecidos:</h4>
+                    <ul class="services-list">
+                        <li>Planejamento tributário</li>
+                        <li>Revisão de tributos</li>
+                        <li>Defesa em processos fiscais</li>
+                        <li>Consultoria em incentivos fiscais</li>
+                        <li>Elisão fiscal</li>
+                        <li>Parcelamentos e transações tributárias</li>
+                    </ul>
+                </div>
+                <div class="area-cta">
+                    <a href="../index.html#contato" class="btn-area">Consulte-nos sobre Direito Tributário</a>
+                </div>
+            </div>
+            <div class="area-detailed">
+                <div class="area-header">
+                    <div class="area-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3 class="area-title">Direito Empresarial</h3>
+                </div>
+                <p class="area-description">
+                    Constituição e reestruturação de 
+                    empresas, elaboração e
+                    negociação de contratos empresariais, planejamento societário, acordos de
+                    sócios, fusões, aquisições, dissoluções societárias e atuação estratégica em
+                    processos de recuperação judicial e extrajudicial.
+                </p>
+                <div class="area-services">
+                    <h4>Serviços Oferecidos:</h4>
+                    <ul class="services-list">
+                        <li>Constituição e alteração de empresas</li>
+                        <li>Contratos comerciais</li>
+                        <li>Recuperação judicial e extrajudicial</li>
+                        <li>Dissolução societária</li>
+                        <li>Governança corporativa</li>
+                        <li>Compliance empresarial</li>
+                    </ul>
+                </div>
+                <div class="area-cta">
+                    <a href="../index.html#contato" class="btn-area">Consulte-nos sobre Direito Empresarial</a>
+                </div>
+            </div>
+
+            <div class="area-detailed">
+                <div class="area-header">
+                    <div class="area-icon">
+                       <i class="fa-solid fa-house"></i>
+                    </div>
+                    <h3 class="area-title">Direito Civil</h3>
+                </div>
+                <p class="area-description">
+                    Elaboração e re
+                    visão de contratos civis e comerciais, indenizações
+                    por responsabilidade civil, inventários, testamentos e planejamento sucessório,
+                    além de assessoria completa em negócios imobiliários (compra, venda e
+                    regularização de imóveis).
+                </p>
+                <div class="area-services">
+                    <h4>Serviços Oferecidos:</h4>
+                    <ul class="services-list">
+                        <li>Elaboração e revisão de contratos</li>
+                        <li>Ações de cobrança e execução</li>
+                        <li>Direito de família e sucessões</li>
+                        <li>Questões imobiliárias</li>
+                        <li>Responsabilidade civil</li>
+                        <li>Direito do consumidor</li>
+                    </ul>
+                </div>
+                <div class="area-cta">
+                    <a href="../index.html#contato" class="btn-area">Consulte-nos sobre Direito Civil</a>
+                </div>
+            </div>
+
+            <div class="area-detailed">
+                <div class="area-header">
+                    <div class="area-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="area-title">Direito do Trabalho</h3>
+                </div>
+                <p class="area-description">
+                    Consultoria preventiva na gestão de relações de trabalho,
+                    elaboração de contratos e políticas internas, negociações sindicais, planejamento
+                    de desligamentos e acordos trabalhistas, além de defesa técnica em reclamações
+                    trabalhistas e processos administrativos.
+                </p>
+                <div class="area-services">
+                    <h4>Serviços Oferecidos:</h4>
+                    <ul class="services-list">
+                        <li>Ações trabalhistas</li>
+                        <li>Rescisões contratuais</li>
+                        <li>Acordos trabalhistas</li>
+                        <li>Consultoria preventiva</li>
+                        <li>Defesa em auditorias fiscais</li>
+                        <li>Elaboração de políticas internas</li>
+                    </ul>
+                </div>
+                <div class="area-cta">
+                    <a href="../index.html#contato" class="btn-area">Consulte-nos sobre Direito do Trabalho</a>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </section>
+
+   <section id="contato" class="contact section">
+        <div class="container">
+            <div class="section-title">
+                <h3 style="color: white;">Entre em Contato</h3>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Fale Conosco</h3>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p style="text-decoration: none; color: white;">Matriz: Av.Cidade Jardim, 377 - 9°andar - Itaim Bibi - São Paulo/SP - CEP <span style="text-decoration:none; color: white; text-underline-offset: 5px;">01453-000</span> <br><br> Filial: Rua Iporans, 737 - Sala 10, Centro - Tupã/SP - CEP 17601-170</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                    
+                            <p>
+                                <a href="tel:1131681111" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                    (11) 3168-1111
+                                </a> <br> <a href="tel:1150438875" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                (11) 5043-8875
+                            </a> <br>
+                             <a href="tel:1434914492" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                (14) 3491-4492
+                            </a> 
+                            </p>
+                            </div>
+                          
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <p>contato@barruecoadvogados.com.br</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <p>Segunda a Sexta: 8h às 18h</p>
+                        </div>
+                    </div>
+                   <div class="social-icons">
+                        <a target="_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados "><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href=" https://www.instagram.com/barruecoadvogados/ "><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false"><i class="fab fa-linkedin-in"></i></a>
+                        <a target="_blank" href="https://wa.me/5514981111872"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" name="nome" placeholder="Seu nome" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Seu e-mail" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="telefone" placeholder="Seu telefone">
+                        </div>
+                        <div class="form-group">
+                            <textarea name="mensagem" rows="5" placeholder="Sua mensagem" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-form" style="color: white;">Enviar Mensagem</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+
+     <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Início</a>
+                <a href="sobre.html">Sobre</a>
+                <a href="atuacao.html">Atuação</a>
+                <a href="equipe.html">Equipe</a>
+                <a href="noticias.html">Notícias</a>
+                <a href="contato.html">Contato</a>
+            </div>
+            <p>&copy; 2025 Barrueco Advogados - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // JavaScript para Menu Mobile Moderno
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuClose = document.getElementById('menu-close');
+            const menuContent = document.getElementById('menu-content');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const body = document.body;
+
+            // Função para abrir o menu
+            function openMenu() {
+                menuContent.classList.add('active');
+                menuOverlay.classList.add('active');
+                hamburgerMenu.classList.add('active');
+                body.style.overflow = 'hidden'; // Previne scroll do body
+
+                // Adiciona animação de entrada aos itens do menu
+                const menuItems = document.querySelectorAll('.mobile-menu-item');
+                menuItems.forEach((item, index) => {
+                    item.style.animationDelay = `${(index + 1) * 0.1}s`;
+                });
+            }
+
+            // Função para fechar o menu
+            function closeMenu() {
+                menuContent.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+                body.style.overflow = ''; // Restaura scroll do body
+            }
+
+            // Event listener para abrir o menu
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    openMenu();
+                });
+            }
+
+            // Event listener para fechar o menu (botão X)
+            if (menuClose) {
+                menuClose.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    closeMenu();
+                });
+            }
+
+            // Event listener para fechar o menu (clique no overlay)
+            if (menuOverlay) {
+                menuOverlay.addEventListener('click', function () {
+                    closeMenu();
+                });
+            }
+
+            // Fechar menu ao clicar em um link (navegação)
+            const menuLinks = document.querySelectorAll('.mobile-menu-link');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    // Se o link for para uma âncora na mesma página
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        closeMenu();
+
+                        // Smooth scroll para a seção
+                        const targetSection = document.querySelector(href);
+                        if (targetSection) {
+                            setTimeout(() => {
+                                targetSection.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }, 300); // Delay para permitir que o menu feche primeiro
+                        }
+                    } else {
+                        // Para links externos, apenas fecha o menu
+                        closeMenu();
+                    }
+
+                    // Adiciona efeito visual de clique
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+
+            // Fechar menu com tecla ESC
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && menuContent.classList.contains('active')) {
+                    closeMenu();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

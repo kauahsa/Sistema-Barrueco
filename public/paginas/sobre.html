@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no, address=no">
+    <link rel="shortcut icon" href="../imagens/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <title>Sobre Nós | Barrueco Advogados</title>
+    <style>
+        .btn-team {
+            background-color: var(--secondary);
+            color: var(--white);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--shadow-light);
+            text-decoration: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 0px 0px 0px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: #695643;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* About Grid */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            color: #695643;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        /* Slider Styles */
+        .about-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+           
+        }
+
+        .about-image h1 {
+            margin: 0;
+            padding: 10px 0;
+            background-color: transparent;
+            color:#695643;
+            /* ou a cor que quiser */
+            text-align: center;
+        }
+
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+
+        .slider-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 40px;
+        }
+
+        .slide-content h4 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Navigation Arrows */
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider-nav:hover {
+            background: #695643;
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .slider-nav.prev {
+            left: 20px;
+        }
+
+        .slider-nav.next {
+            right: 20px;
+        }
+
+        .slider-nav i {
+            font-size: 1.2rem;
+            color: #695643;
+            transition: color 0.3s ease;
+        }
+
+        .slider-nav:hover i {
+            color: white;
+        }
+
+        /* Dots Indicator */
+        .slider-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 3;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active,
+        .dot:hover {
+            background: white;
+            transform: scale(1.2);
+        }
+
+
+        /* Values Section */
+        .values-section {
+            background-color: #f8f9fa;
+            padding: 80px 0;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .value-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .value-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #695643, #48626c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+        }
+
+        .value-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .value-card h4 {
+            font-size: 1.4rem;
+            color: #695643;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .value-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Timeline Section */
+        .timeline-section {
+            padding: 80px 0;
+        }
+
+        .timeline {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #695643;
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-left: 60%;
+            width: 40%;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: 0;
+            margin-right: 60%;
+        }
+
+        .timeline-date {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            background: #695643;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .timeline-content h4 {
+            color: #695643;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .timeline-content p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Team Preview */
+        .team-preview {
+            background-color: #f8f9fa;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .team-cta {
+            background: linear-gradient(135deg, #695643, #48626c);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .team-cta h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .team-cta p {
+            margin-bottom: 25px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: white;
+            color: #695643;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #f4f4f4;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #ccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .slider-container {
+                height: 300px;
+            }
+
+            .slide-content h4 {
+                font-size: 1.5rem;
+            }
+
+            .slide-content p {
+                font-size: 1rem;
+            }
+
+            .slider-nav {
+                width: 40px;
+                height: 40px;
+            }
+
+            .slider-nav.prev {
+                left: 10px;
+            }
+
+            .slider-nav.next {
+                right: 10px;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-content {
+                margin-left: 70px !important;
+                margin-right: 0 !important;
+                width: calc(100% - 80px);
+            }
+
+            .timeline-date {
+                left: 20px;
+                transform: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 60px 0;
+            }
+
+            .values-section,
+            .timeline-section,
+            .team-preview {
+                padding: 60px 0;
+            }
+
+            .slider-container {
+                height: 250px;
+            }
+
+            .slide-content {
+                padding: 20px;
+            }
+
+            .slide-content h4 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header style="background-color: #695643;">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                    <h1></h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="../index.html#inicio" class="menu-link">Início</a></li>
+                        <li><a href="sobre.html" class="menu-link">Sobre</a></li>
+                        <li><a href="atuacao.html" class="menu-link">Atuação</a></li>
+                        <li><a href="equipe.html" class="menu-link active">Equipe</a></li>
+                        <li><a href="noticias.html" class="menu-link">Notícias</a></li>
+                        <li><a href="contato.html" class="menu-link">Contato</a></li>
+                        <li><a href="https://portaldeservicos.pdpj.jus.br/consulta"><button style="margin-left: 90px;"
+                                    id="btn-header">Acompanhe seu processo</button></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="mobile-menu">
+            <div class="mobile-logo">
+                <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
+                    alt="Barrueco Advogados Logo">
+            </div>
+            <div class="mobile-menu-icon" id="menu-toggle">
+
+                <i class="fas fa-bars"
+                    style="margin-top: 12px; padding-right: 50px; font-size: 25px; color: white;"></i>
+
+            </div>
+        </div>
+
+        <div class="mobile-menu-overlay" id="menu-overlay"></div>
+
+        <div class="mobile-menu-content" id="menu-content">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-logo">
+                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                </div>
+                <div class="mobile-close-btn" id="menu-close">
+                    <span class="close-line close-line1"></span>
+                    <span class="close-line close-line2"></span>
+                </div>
+            </div>
+
+            <nav class="mobile-nav">
+                <ul class="mobile-menu-list">
+                    <li class="mobile-menu-item">
+                        <a href="../index.html#inicio" class="mobile-menu-link">
+                            <i class="fas fa-home"></i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="sobre.html" class="mobile-menu-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Sobre</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="atuacao.html" class="mobile-menu-link">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Atuação</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="equipe.html" class="mobile-menu-link">
+                            <i class="fas fa-users"></i>
+                            <span>Equipe</span>
+                        </a>
+                    </li>
+
+                    <li class="mobile-menu-item">
+                        <a href="noticias.html" class="mobile-menu-link">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Notícias</span>
+                        </a>
+                    </li>
+
+                    <li class="mobile-menu-item">
+                        <a href="contato.html" class="mobile-menu-link">
+                            <i class="fas fa-phone"></i>
+                            <span>Contato</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mobile-menu-footer">
+
+                <div class="mobile-social-links">
+                    <a target= "_blank"href="https://www.instagram.com/barruecoadvogados/ " class="mobile-social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a target= "_blank"href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false " class="mobile-social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a target= "_blank"href="https://wa.me/5514981111872" class="mobile-social-link">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a target= "_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados" class= "mobile-social-link"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="main-content">
+        <div class="container">
+            <section class="section">
+                <div class="about-grid">
+                    <div class="about-text">
+                        <h3>Nossa História</h3>
+                        <p>Fundado há mais de 20 anos, o escritório Barrueco Advogados Associados nasceu
+                            com a proposta de unir conhecimento técnico aprofundado, próprio dos grandes
+                            escritórios, a um atendimento próximo, direto e personalizado. Desde o início,
+                            construímos nossa trajetória com base na ética, na transparência e na dedicação
+                            integral aos interesses de nossos clientes.
+                            Nossa atuação é pautada na proximidade com o cliente: cada caso é conduzido
+                            com acompanhamento direto pelos sócios, proporcionando segurança, agilidade
+                            e soluções jurídicas alinhadas à realidade de cada cliente, seja pessoa física,
+                            empresa ou grupo familiar.</p>
+                        <p>Com ampla experiência nas áreas Tributária, Empresarial, Societária, Cível e
+                            Trabalhista, buscamos não apenas resolver conflitos, mas também antecipar
+                            riscos e estruturar soluções jurídicas seguras e estratégicas, sempre com foco na
+                            proteção patrimonial e na estabilidade jurídica de nossos clientes.
+                            Mais do que prestar serviços jurídicos, cultivamos relações de confiança e parceria
+                            de longo prazo.</p>
+                    </div>
+
+                    <div class="about-image">
+                        <h1>Conheça nosso Escritório</h1>
+                        <div class="slider-container" style="background-color: transparent;">
+                            <div class="slider-wrapper" id="sliderWrapper">
+                                <div class="slider-slide slide-1"
+                                    style="background-image: url(../imagens/escritorio/entrada.jpg); background-position: center center; background-size: cover;">
+
+                                </div>
+                                <div class="slider-slide slide-2"
+                                    style="background-image: url(../imagens/escritorio/sala.jpg); background-position: center center; background-size: cover;">
+
+                                </div>
+                                <div class="slider-slide slide-3"
+                                    style="background-image: url(../imagens/escritorio/sala2.jpg); background-position: center center; background-size: cover;">
+
+                                </div>
+                                <div class="slider-slide slide-4"
+                                    style="background-image: url(../imagens/escritorio/cafeteria.jpg); background-position: center center; background-size: cover;">
+
+                                </div>
+                                <div class="slider-slide slide-5"
+                                    style="background-image: url(../imagens/escritorio/varanda.jpg); background-position: center center; background-size: cover;">
+
+                                </div>
+                                <div class="slider-slide slide-6"
+                                    style="background-image: Url(../imagens/escritorio/predio.jpg), linear-gradient(135deg, rgba(105, 86, 67, 0.7), rgba(72, 98, 108, 0.7)); background-size:contain; background-repeat:no-repeat; ">
+
+                                </div>
+                            </div>
+
+                            <button class="slider-nav prev" onclick="changeSlide(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="slider-nav next" onclick="changeSlide(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+
+                            <div class="slider-dots">
+                                <button class="dot active" onclick="currentSlide(1)"></button>
+                                <button class="dot" onclick="currentSlide(2)"></button>
+                                <button class="dot" onclick="currentSlide(3)"></button>
+                                <button class="dot" onclick="currentSlide(4)"></button>
+                                <button class="dot" onclick="currentSlide(5)"></button>
+                                <button class="dot" onclick="currentSlide(6)"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="values-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Nossos Valores</h2>
+                    <p>Princípios que norteiam nossa atuação e definem nosso compromisso com a excelência</p>
+                </div>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h4>Ética e Transparência</h4>
+                        <p>Atuamos com total transparência em todos os processos, mantendo nossos clientes sempre
+                            informados sobre o andamento de seus casos.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>Excelência Jurídica</h4>
+                        <p>Buscamos constantemente a excelência em nossos serviços, através de estudo contínuo e
+                            atualização nas mudanças legislativas.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h4>Atendimento Humanizado</h4>
+                        <p>Cada cliente é único para nós. Oferecemos atendimento personalizado, compreendendo as
+                            necessidades específicas de cada situação.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h4>Foco em Resultados</h4>
+                        <p>Nosso compromisso é com resultados efetivos, sempre buscando as melhores soluções para nossos
+                            clientes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="timeline-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Nossa Trajetória</h2>
+                    <p>Marcos importantes na história do Barrueco Advogados</p>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">1999</div>
+                        <div class="timeline-content">
+                            <h4>Fundação do Escritório</h4>
+                            <p>Início das atividades com foco em Direito Civil e Empresarial, estabelecendo as bases
+                                para um atendimento diferenciado.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2004</div>
+                        <div class="timeline-content">
+                            <h4>Nova Sede</h4>
+                            <p>Muda-se a sede para o Edifício Sant James na Avenida Cidade Jardim 377, Itaim Bibi, São Paulo.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2010</div>
+                        <div class="timeline-content">
+                            <h4>Expansão das Áreas de Atuação</h4>
+                            <p>Incorporação das áreas de Direito Trabalhista e Tributário</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2012</div>
+                        <div class="timeline-content">
+                            <h4>Crescimento da Equipe</h4>
+                            <p>Contratação de novos profissionais especializados, fortalecendo nossa expertise em
+                                diferentes áreas do Direito.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2015</div>
+                        <div class="timeline-content">
+                            <h4>Abertura de filial</h4>
+                            <p>Abertura de filial na cidade de Tupã/SP, ampliando nosso atendimento para toda Alta
+                                Paulista.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2020</div>
+                        <div class="timeline-content">
+                            <h4>Modernização Tecnológica</h4>
+                            <p>Implementação de sistemas digitais para acompanhamento processual e atendimento remoto
+                                aos clientes.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2024</div>
+                        <div class="timeline-content">
+                            <h4>Atuação Abrangente com Experiência Reconhecida</h4>
+                            <p>Atuação sólida e contínua na Capital e no interior, com ampla experiência acumulada em
+                                diversas áreas do Direito.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="team-preview">
+            <div class="container">
+                <div class="team-cta">
+                    <h3>Conheça Nossa Equipe</h3>
+                    <p>Profissionais experientes e dedicados, prontos para defender seus direitos com competência e
+                        ética.</p>
+                    <a href="equipe.html" class="btn-team">Ver Equipe Completa</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Início</a>
+                <a href="sobre.html">Sobre</a>
+                <a href="atuacao.html">Atuação</a>
+                <a href="equipe.html">Equipe</a>
+                <a href="noticias.html">Notícias</a>
+                <a href="contato.html">Contato</a>
+            </div>
+            <p>&copy; 2025 Barrueco Advogados - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script>
+         document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuClose = document.getElementById('menu-close');
+            const menuContent = document.getElementById('menu-content');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const body = document.body;
+
+            // Função para abrir o menu
+            function openMenu() {
+                menuContent.classList.add('active');
+                menuOverlay.classList.add('active');
+                hamburgerMenu.classList.add('active');
+                body.style.overflow = 'hidden'; // Previne scroll do body
+
+                // Adiciona animação de entrada aos itens do menu
+                const menuItems = document.querySelectorAll('.mobile-menu-item');
+                menuItems.forEach((item, index) => {
+                    item.style.animationDelay = `${(index + 1) * 0.1}s`;
+                });
+            }
+
+            // Função para fechar o menu
+            function closeMenu() {
+                menuContent.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+                body.style.overflow = ''; // Restaura scroll do body
+            }
+
+            // Event listener para abrir o menu
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    openMenu();
+                });
+            }
+
+            // Event listener para fechar o menu (botão X)
+            if (menuClose) {
+                menuClose.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    closeMenu();
+                });
+            }
+
+            // Event listener para fechar o menu (clique no overlay)
+            if (menuOverlay) {
+                menuOverlay.addEventListener('click', function () {
+                    closeMenu();
+                });
+            }
+
+            // Fechar menu ao clicar em um link (navegação)
+            const menuLinks = document.querySelectorAll('.mobile-menu-link');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    // Se o link for para uma âncora na mesma página
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        closeMenu();
+
+                        // Smooth scroll para a seção
+                        const targetSection = document.querySelector(href);
+                        if (targetSection) {
+                            setTimeout(() => {
+                                targetSection.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }, 300); // Delay para permitir que o menu feche primeiro
+                        }
+                    } else {
+                        // Para links externos, apenas fecha o menu
+                        closeMenu();
+                    }
+
+                    // Adiciona efeito visual de clique
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+
+            // Fechar menu com tecla ESC
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && menuContent.classList.contains('active')) {
+                    closeMenu();
+                }
+            });
+
+            // Prevenir scroll quando o menu estiver aberto
+            menuContent.addEventListener('touchmove', function (e) {
+                e.stopPropagation();
+            });
+
+            // Efeito de hover nos links sociais
+            const socialLinks = document.querySelectorAll('.mobile-social-link');
+            socialLinks.forEach(link => {
+                link.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-3px) scale(1.1)';
+                });
+
+                link.addEventListener('mouseleave', function () {
+                    this.style.transform = '';
+                });
+            });
+
+            // Adicionar efeito de ripple nos links do menu
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+
+                    ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(166, 139, 91, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+
+                    this.style.position = 'relative';
+                    this.appendChild(ripple);
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Adicionar animação de entrada para os ícones
+            const menuIcons = document.querySelectorAll('.mobile-menu-link i');
+            menuIcons.forEach((icon, index) => {
+                icon.addEventListener('mouseenter', function () {
+                    this.style.animation = 'bounce 0.6s ease';
+                });
+
+                icon.addEventListener('animationend', function () {
+                    this.style.animation = '';
+                });
+            });
+
+            // Detectar orientação do dispositivo e ajustar menu
+            function handleOrientationChange() {
+                if (menuContent.classList.contains('active')) {
+                    setTimeout(() => {
+                        // Reajustar posições se necessário
+                        menuContent.style.height = '100vh';
+                    }, 100);
+                }
+            }
+
+            window.addEventListener('orientationchange', handleOrientationChange);
+            window.addEventListener('resize', handleOrientationChange);
+        });
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slider-slide');
+        const totalSlides = slides.length;
+        const sliderWrapper = document.getElementById('sliderWrapper');
+        const dots = document.querySelectorAll('.dot');
+
+        function updateSlider() {
+            const translateX = -currentSlideIndex * 100;
+            sliderWrapper.style.transform = `translateX(${translateX}%)`;
+
+            // Update dots
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlideIndex);
+            });
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+
+            if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = totalSlides - 1;
+            }
+
+            updateSlider();
+        }
+
+        function currentSlide(index) {
+            currentSlideIndex = index - 1;
+            updateSlider();
+        }
+
+        // Auto-slide functionality
+        setInterval(() => {
+            changeSlide(1);
+        }, 5000);
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        sliderWrapper.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        sliderWrapper.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    changeSlide(1); // Swipe left - next slide
+                } else {
+                    changeSlide(-1); // Swipe right - previous slide
+                }
+            }
+        }
+
+        // Initialize
+        updateSlider();
+    </script>
+</body>
+
+</html>
