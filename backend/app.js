@@ -5,13 +5,15 @@ const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 
-const Admin = require('./models/admins')
+const admins = require('./models/admins')
 
 const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, '..', 'public')))
+app.use(express.static(path.join(__dirname, '..', 'public', 'paginas')));
+
 
 console.log("Ola")
 
@@ -27,6 +29,9 @@ app.get('/login', (req,res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'login.html'))
 })
 
+app.get('/admin', checkToken, (req,res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema.html'))
+})
 
 
 //Fazendo a Verificação de login
@@ -48,7 +53,7 @@ app.post('/auth/login', async (req, res) => {
     const admin = await admins.findOne({ username: username })
 
     if(!admin){
-        return res.status(404).json({msg: 'username não encontrado'})
+        return res.status(404).json({msg: 'Username não encontrado'})
     }
 
     const checkpassword = await admins.findOne({password:password})
@@ -75,6 +80,33 @@ app.post('/auth/login', async (req, res) => {
     }
 })
 
+//Função de verificação de token 
+
+function checkToken(req, res, next) {
+    const token = req.cookies.token  
+
+    if (!token) {
+        if (req.accepts('html')) {
+            return res.redirect('/login')
+        } else {
+            return res.status(401).json({ msg: 'Acesso Bloqueado!' })
+        }
+    }
+
+    try {
+        const secret = process.env.SECRET
+        const decoded = jwt.verify(token, secret)
+        req.adminId = decoded.id
+        next()
+    } catch (error) {
+        if (req.accepts('html')) {
+            return res.redirect('/login')
+        } else {
+            return res.status(400).json({ msg: "Token inválido" })
+        }
+    }
+}
+
 
 //Conexão MongoDB
 
@@ -87,3 +119,4 @@ mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster.2e9of8p.mongodb.
         console.log("Conexão Bem sucedida, rodando na porta 3001")
     })
     .catch((err) => console.log(err))
+

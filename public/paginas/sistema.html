@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Publicação - Artigos</title>
+    <style>
+        :root {
+            --primary: #695643;
+            --primary-dark: #4a3c2e;
+            --primary-light: #857865;
+            --secondary: #8b7355;
+            --accent: #a68b5b;
+            --tertiary: #5d4e3a;
+            --light: #faf9f7;
+            --light-gray: #f2f0ec;
+            --medium-gray: #d4d0c8;
+            --dark: #2d251a;
+            --white: #ffffff;
+            --text-light: #6b635a;
+            --text-dark: #3d3529;
+            --shadow-light: rgba(105, 86, 67, 0.1);
+            --shadow-medium: rgba(105, 86, 67, 0.2);
+            --shadow-dark: rgba(105, 86, 67, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow-medium);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: var(--light-gray);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .content-area {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px var(--shadow-light);
+            border: 1px solid var(--light-gray);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px var(--shadow-light);
+            border: 1px solid var(--light-gray);
+        }
+
+        .sidebar-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .page-title {
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-title::before {
+            content: "✍️";
+            font-size: 1.5rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(166, 139, 91, 0.1);
+        }
+
+        .form-control.large {
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            pointer-events: none;
+        }
+
+        .form-control select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            min-height: 48px;
+            align-items: center;
+            background-color: var(--white);
+        }
+
+        .tag {
+            background: var(--accent);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+            padding: 0.25rem;
+            background: transparent;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--medium-gray);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: var(--light-gray);
+        }
+
+        .file-upload:hover {
+            border-color: var(--accent);
+            background-color: rgba(166, 139, 91, 0.05);
+        }
+
+        .file-upload.active {
+            border-color: var(--accent);
+            background-color: rgba(166, 139, 91, 0.1);
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: 0 4px 16px var(--shadow-medium);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px var(--shadow-dark);
+        }
+
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--text-dark);
+            border: 2px solid var(--medium-gray);
+        }
+
+        .btn-secondary:hover {
+            background: var(--medium-gray);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(166, 139, 91, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light-gray);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .recent-articles {
+            list-style: none;
+        }
+
+        .recent-articles li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recent-articles li:last-child {
+            border-bottom: none;
+        }
+
+        .article-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .article-status.draft {
+            background: var(--text-light);
+        }
+
+        .article-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .article-link:hover {
+            color: var(--primary);
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .quick-action:hover {
+            background: var(--medium-gray);
+            transform: translateX(4px);
+        }
+
+        .notification {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent);
+            background: rgba(166, 139, 91, 0.1);
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Sistema de Publicação</h1>
+            <nav class="nav-menu">
+                <a href="#inicio" class="nav-item active">Novo Artigo</a>
+                <a href="sistema/artigos.html" class="nav-item">Meus Artigos</a>
+                <a href="#" class="nav-item">Configurações</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <main class="content-area">
+            <div class="notification">
+                💡 Dica: Use imagens de alta qualidade e títulos atrativos para aumentar o engajamento dos seus artigos.
+            </div>
+
+            <h2 class="page-title">Criar Novo Artigo</h2>
+
+            <form id="articleForm">
+                <div class="form-section">
+                    <h3>Informações Básicas</h3>
+                    
+                    <div class="form-group">
+                        <label for="title">Título do Artigo *</label>
+                        <input type="text" id="title" class="form-control" placeholder="Digite o título do seu artigo..." required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Categoria *</label>
+                            <div class="select-wrapper">
+                                <select id="category" class="form-control" required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option value="tecnologia">Tecnologia</option>
+                                    <option value="negocios">Negócios</option>
+                                    <option value="lifestyle">Lifestyle</option>
+                                    <option value="educacao">Educação</option>
+                                    <option value="saude">Saúde</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="author">Autor</label>
+                            <input type="text" id="author" class="form-control" placeholder="Nome do autor" value="João Silva">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="excerpt">Resumo do Artigo</label>
+                        <textarea id="excerpt" class="form-control" rows="3" placeholder="Escreva um breve resumo do seu artigo..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tags">Tags</label>
+                        <div class="tag-input-container" id="tagContainer">
+                            <div class="tag">
+                                React
+                                <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
+                            </div>
+                            <div class="tag">
+                                JavaScript
+                                <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
+                            </div>
+                            <input type="text" class="tag-input" placeholder="Adicionar tag..." onkeypress="addTag(event)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Conteúdo do Artigo</h3>
+                    
+                    <div class="form-group">
+                        <label for="content">Conteúdo *</label>
+                        <textarea id="content" class="form-control large" placeholder="Escreva o conteúdo do seu artigo aqui..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Imagem de Destaque</h3>
+                    
+                    <div class="form-group">
+                        <div class="file-upload" onclick="document.getElementById('featuredImage').click()">
+                            <div class="file-icon">🖼️</div>
+                            <p>Clique para selecionar uma imagem</p>
+                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">Formatos aceitos: JPG, PNG, WebP (máx. 5MB)</p>
+                        </div>
+                        <input type="file" id="featuredImage" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Configurações de Publicação</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <div class="select-wrapper">
+                                <select id="status" class="form-control">
+                                    <option value="draft">Rascunho</option>
+                                    <option value="scheduled">Agendado</option>
+                                    <option value="published">Publicado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="publishDate">Data de Publicação</label>
+                            <input type="datetime-local" id="publishDate" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary">💾 Salvar Rascunho</button>
+                    <button type="button" class="btn btn-primary">👁️ Pré-visualizar</button>
+                    <button type="submit" class="btn btn-success">🚀 Publicar Artigo</button>
+                </div>
+            </form>
+        </main>
+
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <h3>📊 Estatísticas</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">24</div>
+                        <div class="stat-label">Artigos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1.2k</div>
+                        <div class="stat-label">Visualizações</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">89</div>
+                        <div class="stat-label">Comentários</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Curtidas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <h3>📝 Artigos Recentes</h3>
+                <ul class="recent-articles">
+                    <li>
+                        <div class="article-status"></div>
+                        <a href="#" class="article-link">Como criar interfaces modernas</a>
+                    </li>
+                    <li>
+                        <div class="article-status draft"></div>
+                        <a href="#" class="article-link">Guia de UX Design</a>
+                    </li>
+                    <li>
+                        <div class="article-status"></div>
+                        <a href="#" class="article-link">Tendências em Web Development</a>
+                    </li>
+                    <li>
+                        <div class="article-status draft"></div>
+                        <a href="#" class="article-link">React vs Vue: Comparação</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-card">
+                <h3>⚡ Ações Rápidas</h3>
+                <div class="quick-actions">
+                    <a href="#" class="quick-action">
+                        📁 Gerenciar Categorias
+                    </a>
+                    <a href="#" class="quick-action">
+                        🏷️ Organizar Tags
+                    </a>
+                    <a href="#" class="quick-action">
+                        📈 Ver Relatórios
+                    </a>
+                    <a href="#" class="quick-action">
+                        ⚙️ Configurações
+                    </a>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // Adicionar tag
+        function addTag(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = event.target;
+                const tagText = input.value.trim();
+                
+                if (tagText) {
+                    const tag = document.createElement('div');
+                    tag.className = 'tag';
+                    tag.innerHTML = `
+                        ${tagText}
+                        <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
+                    `;
+                    
+                    input.parentNode.insertBefore(tag, input);
+                    input.value = '';
+                }
+            }
+        }
+
+        // Remover tag
+        function removeTag(button) {
+            button.parentElement.remove();
+        }
+
+        // Handle de upload de imagem
+        function handleImageUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const fileUpload = input.parentElement.querySelector('.file-upload');
+                fileUpload.innerHTML = `
+                    <div class="file-icon">✅</div>
+                    <p>Imagem selecionada: ${file.name}</p>
+                    <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">Clique para alterar</p>
+                `;
+                fileUpload.classList.add('active');
+            }
+        }
+
+        // Drag and drop para upload
+        const fileUpload = document.querySelector('.file-upload');
+        
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('active');
+        });
+
+        fileUpload.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('active');
+        });
+
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('active');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('featuredImage').files = files;
+                handleImageUpload(document.getElementById('featuredImage'));
+            }
+        });
+
+        // Form submission
+        document.getElementById('articleForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Simular publicação
+            const notification = document.querySelector('.notification');
+            notification.innerHTML = '🎉 Artigo publicado com sucesso! Redirecionando...';
+            notification.style.borderLeftColor = 'var(--accent)';
+            notification.style.background = 'rgba(166, 139, 91, 0.2)';
+            
+            setTimeout(() => {
+                notification.innerHTML = '💡 Dica: Use imagens de alta qualidade e títulos atrativos para aumentar o engajamento dos seus artigos.';
+                notification.style.borderLeftColor = 'var(--accent)';
+                notification.style.background = 'rgba(166, 139, 91, 0.1)';
+            }, 3000);
+        });
+
+        // Auto-save functionality
+        let autoSaveTimer;
+        const formInputs = document.querySelectorAll('input, textarea, select');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    console.log('Auto-salvando rascunho...');
+                    // Aqui você implementaria a lógica de auto-save
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

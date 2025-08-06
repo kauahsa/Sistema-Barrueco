@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
             showMessage(data.msg, 'success');
 
             setTimeout(() => {
-                window.location.href = '/sistema';
+                window.location.href = '/admin';
             }, 2000);
         } catch (err) {
             showMessage("Erro de conexão com o servidor", 'error');
@@ -138,67 +138,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        // Validação em tempo real
-        const usernameInput = document.getElementById('username');
-        const passwordInputField = document.getElementById('password');
+      
+       
+        
 
-        usernameInput.addEventListener('input', function() {
-            if (this.value.length < 3) {
-                this.style.borderColor = 'var(--warning)';
-            } else {
-                this.style.borderColor = 'var(--success)';
-            }
-        });
+    
 
-        passwordInputField.addEventListener('input', function() {
-            if (this.value.length < 6) {
-                this.style.borderColor = 'var(--warning)';
-            } else {
-                this.style.borderColor = 'var(--success)';
-            }
-        });
-
-        // Proteção contra múltiplas tentativas
-        let loginAttempts = 0;
-        const maxAttempts = 5;
-        const lockoutTime = 300000; // 5 minutos
-
-        function checkLockout() {
-            const lastAttempt = localStorage.getItem('lastLoginAttempt');
-            const attempts = parseInt(localStorage.getItem('loginAttempts') || '0');
-            
-            if (attempts >= maxAttempts && lastAttempt) {
-                const timePassed = Date.now() - parseInt(lastAttempt);
-                if (timePassed < lockoutTime) {
-                    const remainingTime = Math.ceil((lockoutTime - timePassed) / 60000);
-                    showMessage(`Muitas tentativas. Tente novamente em ${remainingTime} minutos.`, 'error');
-                    loginBtn.disabled = true;
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // Verificar bloqueio ao carregar a página
-        if (!checkLockout()) {
-            loginBtn.style.opacity = '0.5';
-            loginBtn.style.cursor = 'not-allowed';
-        }
-
-        // Registrar tentativas de login
-        loginForm.addEventListener('submit', function() {
-            loginAttempts = parseInt(localStorage.getItem('loginAttempts') || '0');
-            loginAttempts++;
-            localStorage.setItem('loginAttempts', loginAttempts.toString());
-            localStorage.setItem('lastLoginAttempt', Date.now().toString());
-            
-            if (loginAttempts >= maxAttempts) {
-                showMessage('Muitas tentativas de login. Conta temporariamente bloqueada.', 'error');
-            }
-        });
-
-        // Limpar tentativas em caso de sucesso
-        function clearLoginAttempts() {
-            localStorage.removeItem('loginAttempts');
-            localStorage.removeItem('lastLoginAttempt');
-        }
+     
