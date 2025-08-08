@@ -138,7 +138,7 @@ async function buscarNoticias() {
         continue;
       }
 
-      feed.items.slice(0, 5).forEach(item => {
+      feed.items.slice(0, 6).forEach(item => {
         todasNoticias.push({
           fonte: fonte.nome,
           titulo: item.title,
