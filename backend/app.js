@@ -41,6 +41,27 @@ app.get('/admin', checkToken, (req,res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema.html'))
 })
 
+app.post('/postArt', async (req, res) => {
+  const {titulo, conteudo, autor, data} = req.body
+
+  try{
+    const novoArtigo =  new Artigo({
+      titulo: titulo,
+      conteudo: conteudo,
+      autor: autor,
+      data : data
+
+    })
+
+    await novoArtigo.save()
+
+    res.status(201).json({msg:"Artigo publicado com Sucesso!"})
+
+  } catch(error){
+    console.error(error)
+    res.status(500).json({msg:"Erro em publicar artigo!"})
+  }
+})
 
 //Fazendo a Verificação de login
 app.post('/auth/login', async (req, res) => {
@@ -121,7 +142,6 @@ async function buscarNoticias() {
     { nome: 'STF', url: 'https://portal.stf.jus.br/rss/STF-noticias.xml' },
     { nome: 'STJ', url: 'https://www.stj.jus.br/sites/portalp/Paginas/rss.aspx' },
     { nome: 'CNJ', url: 'https://www.cnj.jus.br/feed/' },
-    
     { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
     { nome: 'Migalhas', url: 'https://www.migalhas.com.br/rss' }
 

@@ -476,97 +476,39 @@
                     
                     <div class="form-group">
                         <label for="title">Título do Artigo *</label>
-                        <input type="text" id="title" class="form-control" placeholder="Digite o título do seu artigo..." required>
+                        <input type="text" id="titulo" class="form-control" placeholder="Digite o título do seu artigo..." required>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="category">Categoria *</label>
-                            <div class="select-wrapper">
-                                <select id="category" class="form-control" required>
-                                    <option value="">Selecione uma categoria</option>
-                                    <option value="tecnologia">Tecnologia</option>
-                                    <option value="negocios">Negócios</option>
-                                    <option value="lifestyle">Lifestyle</option>
-                                    <option value="educacao">Educação</option>
-                                    <option value="saude">Saúde</option>
-                                </select>
-                            </div>
-                        </div>
+                
 
                         <div class="form-group">
                             <label for="author">Autor</label>
-                            <input type="text" id="author" class="form-control" placeholder="Nome do autor" value="João Silva">
+                            <input type="text" id="autor" class="form-control" placeholder="Nome do autor">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="excerpt">Resumo do Artigo</label>
-                        <textarea id="excerpt" class="form-control" rows="3" placeholder="Escreva um breve resumo do seu artigo..."></textarea>
+                        <textarea id="conteudo" class="form-control" rows="3" placeholder="Escreva um breve resumo do seu artigo..."></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="tags">Tags</label>
-                        <div class="tag-input-container" id="tagContainer">
-                            <div class="tag">
-                                React
-                                <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
-                            </div>
-                            <div class="tag">
-                                JavaScript
-                                <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
-                            </div>
-                            <input type="text" class="tag-input" placeholder="Adicionar tag..." onkeypress="addTag(event)">
-                        </div>
-                    </div>
                 </div>
 
-                <div class="form-section">
-                    <h3>Conteúdo do Artigo</h3>
-                    
-                    <div class="form-group">
-                        <label for="content">Conteúdo *</label>
-                        <textarea id="content" class="form-control large" placeholder="Escreva o conteúdo do seu artigo aqui..." required></textarea>
-                    </div>
-                </div>
+                
 
-                <div class="form-section">
-                    <h3>Imagem de Destaque</h3>
-                    
-                    <div class="form-group">
-                        <div class="file-upload" onclick="document.getElementById('featuredImage').click()">
-                            <div class="file-icon">🖼️</div>
-                            <p>Clique para selecionar uma imagem</p>
-                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">Formatos aceitos: JPG, PNG, WebP (máx. 5MB)</p>
-                        </div>
-                        <input type="file" id="featuredImage" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
-                    </div>
-                </div>
-
+               
                 <div class="form-section">
                     <h3>Configurações de Publicação</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="status">Status *</label>
-                            <div class="select-wrapper">
-                                <select id="status" class="form-control">
-                                    <option value="draft">Rascunho</option>
-                                    <option value="scheduled">Agendado</option>
-                                    <option value="published">Publicado</option>
-                                </select>
-                            </div>
-                        </div>
+
 
                         <div class="form-group">
                             <label for="publishDate">Data de Publicação</label>
-                            <input type="datetime-local" id="publishDate" class="form-control">
+                            <input type="datetime-local" id="data" class="form-control">
                         </div>
                     </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button type="button" class="btn btn-secondary">💾 Salvar Rascunho</button>
                     <button type="button" class="btn btn-primary">👁️ Pré-visualizar</button>
                     <button type="submit" class="btn btn-success">🚀 Publicar Artigo</button>
                 </div>
