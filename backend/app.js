@@ -1,14 +1,22 @@
+// Ignora verificação SSL (solução temporária para certificados inválidos)
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const path = require('path')
+const Parser = require('rss-parser')
+const cors = require('cors')
 
 const admins = require('./models/admins')
+const Artigo = require('./models/artigo')
 
 const app = express()
+const parser = new Parser();
 
+app.use(cors());
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, '..', 'public')))
@@ -106,6 +114,66 @@ function checkToken(req, res, next) {
         }
     }
 }
+
+//Api de noticias
+async function buscarNoticias() {
+  const fontes = [
+    { nome: 'STF', url: 'https://portal.stf.jus.br/rss/STF-noticias.xml' },
+    { nome: 'STJ', url: 'https://www.stj.jus.br/sites/portalp/Paginas/rss.aspx' },
+    { nome: 'CNJ', url: 'https://www.cnj.jus.br/feed/' },
+    
+    { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
+    { nome: 'Migalhas', url: 'https://www.migalhas.com.br/rss' }
+
+  ];
+
+  const todasNoticias = [];
+
+  for (const fonte of fontes) {
+    try {
+      const feed = await parser.parseURL(fonte.url);
+
+      if (!feed.items || !Array.isArray(feed.items)) {
+        console.warn(`Feed inválido da fonte ${fonte.nome}`);
+        continue;
+      }
+
+      feed.items.slice(0, 5).forEach(item => {
+        todasNoticias.push({
+          fonte: fonte.nome,
+          titulo: item.title,
+          link: item.link,
+          data: item.pubDate || item.isoDate || '',
+          resumo: item.contentSnippet || item.content || ''
+        });
+      });
+
+    } catch (e) {
+      console.error(`Erro na fonte ${fonte.nome}: ${e.message}`);
+    }
+  }
+
+  return todasNoticias;
+}
+
+
+app.get('/noticias', async (req, res) => {
+  const noticias = await buscarNoticias();
+  console.log("Notícias carregadas:", noticias);  // 👈 ADICIONE ISSO
+  res.json(noticias);
+});
+
+//Artigos do banco
+app.get('/artigos', async (req, res) => {
+  try {
+    const artigos = await Artigo.find().sort({ data: -1 }).limit(10); // Últimos 10
+    res.json(artigos);
+  } catch (error) {
+    console.error('Erro ao buscar artigos:', error.message);
+    res.status(500).json({ erro: 'Erro ao buscar artigos' });
+  }
+});
+
 
 
 //Conexão MongoDB
