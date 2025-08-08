@@ -27,19 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!response.ok) {
                 showMessage(data.msg, 'error');
-                usernameInput.value = '';
-                passwordInput.value = '';
-
-                const inputs = document.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.style.animation = 'shake 0.5s ease-in-out';
-                    setTimeout(() => {
-                        input.style.animation = '';
-                    }, 500);
-                });
-
-                loginBtn.classList.remove('loading');
-                loginBtn.querySelector('span').style.opacity = '1';
                 return;
             }
 
@@ -50,13 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 2000);
         } catch (err) {
             showMessage("Erro de conexão com o servidor", 'error');
-        } finally {
-            // garantir que o loading desapareça se não for redirecionado
-            setTimeout(() => {
-                loginBtn.classList.remove('loading');
-                loginBtn.querySelector('span').style.opacity = '1';
-            }, 1500);
-        }
+        } 
+        
     });
 });
 
