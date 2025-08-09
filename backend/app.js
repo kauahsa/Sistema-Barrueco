@@ -44,6 +44,19 @@ app.get('/admin', checkToken, (req,res) => {
 app.post('/postArt', async (req, res) => {
   const {titulo, conteudo, autor, data} = req.body
 
+  if(!titulo){
+    return res.status(422).json({msg: "É necessario um titulo!"})
+  }  
+  if(!conteudo){
+    return res.status(422).json({msg: "Adicione um texto!"})
+  }
+  if(!autor){
+    return res.status(422).json({msg:"Informe o Autor!"})
+  }
+  if(!data){
+    return res.status(422).json({msg:"Informe a data do artigo"})
+  }
+
   try{
     const novoArtigo =  new Artigo({
       titulo: titulo,
