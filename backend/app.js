@@ -9,6 +9,8 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const Parser = require('rss-parser')
 const cors = require('cors')
+const multer = require('multer') // Adicionar multer para upload
+const fs = require('fs') // Para verificar diretórios
 
 const admins = require('./models/admins')
 const Artigo = require('./models/artigo')
@@ -22,6 +24,43 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, '..', 'public')))
 app.use(express.static(path.join(__dirname, '..', 'public', 'paginas')));
 
+// Servir arquivos PDF estaticamente
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+// Configuração do multer para upload de PDFs
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, '..', 'uploads');
+    
+    // Criar diretório se não existir
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    // Gerar nome único para o arquivo
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB
+  },
+  fileFilter: function (req, file, cb) {
+    // Aceitar apenas PDFs
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos PDF são permitidos!'));
+    }
+  }
+});
 
 console.log("Ola")
 
@@ -41,7 +80,8 @@ app.get('/admin', checkToken, (req,res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema.html'))
 })
 
-app.post('/postArt', async (req, res) => {
+// Modificar rota para incluir upload de PDF
+app.post('/postArt', upload.single('pdf'), async (req, res) => {
   const {titulo, conteudo, autor, data} = req.body
 
   if(!titulo){
@@ -62,8 +102,8 @@ app.post('/postArt', async (req, res) => {
       titulo: titulo,
       conteudo: conteudo,
       autor: autor,
-      data : data
-
+      data: data,
+      pdf: req.file ? `/uploads/${req.file.filename}` : null // Salvar caminho do PDF
     })
 
     await novoArtigo.save()
@@ -123,7 +163,6 @@ app.post('/auth/login', async (req, res) => {
 })
 
 //Função de verificação de token 
-
 function checkToken(req, res, next) {
     const token = req.cookies.token  
 
@@ -157,7 +196,6 @@ async function buscarNoticias() {
     { nome: 'CNJ', url: 'https://www.cnj.jus.br/feed/' },
     { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
     { nome: 'Migalhas', url: 'https://www.migalhas.com.br/rss' }
-
   ];
 
   const todasNoticias = [];
@@ -189,10 +227,9 @@ async function buscarNoticias() {
   return todasNoticias;
 }
 
-
 app.get('/noticias', async (req, res) => {
   const noticias = await buscarNoticias();
-  console.log("Notícias carregadas:", noticias);  // 👈 ADICIONE ISSO
+  console.log("Notícias carregadas:", noticias);
   res.json(noticias);
 });
 
@@ -207,10 +244,7 @@ app.get('/artigos', async (req, res) => {
   }
 });
 
-
-
 //Conexão MongoDB
-
 const dbUser = process.env.DB_USER
 const dbPassword = process.env.DB_PASS
 
@@ -220,4 +254,3 @@ mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster.2e9of8p.mongodb.
         console.log("Conexão Bem sucedida, rodando na porta 3001")
     })
     .catch((err) => console.log(err))
-

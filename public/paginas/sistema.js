@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const conteudoInput = document.getElementById('conteudo');
     const autorInput = document.getElementById('autor');
     const dataInput = document.getElementById('data');
+    const pdfInput = document.getElementById('pdfInput');
+    const pdfUploadArea = document.getElementById('pdfUploadArea');
+    const uploadedPdf = document.getElementById('uploadedPdf');
     const publishBtn = document.getElementById('publishBtn');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const messageToast = document.getElementById('messageToast');
@@ -25,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Função para mostrar mensagem toast
     function showMessage(msg, type) {
-        // Definir ícone baseado no tipo
         const icons = {
             success: '✅',
             error: '❌',
@@ -35,15 +37,12 @@ document.addEventListener('DOMContentLoaded', function () {
         messageIcon.textContent = icons[type] || '💬';
         messageContent.textContent = msg;
         
-        // Remover classes anteriores e adicionar nova
         messageToast.className = `message-toast ${type}`;
         
-        // Mostrar toast
         setTimeout(() => {
             messageToast.classList.add('show');
         }, 100);
 
-        // Auto-hide após 5 segundos
         setTimeout(() => {
             hideMessage();
         }, 5000);
@@ -68,14 +67,99 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Função para formatar tamanho de arquivo
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Função para exibir PDF selecionado
+    function displaySelectedPdf(file) {
+        if (file.size > 2 * 1024 * 1024) { // 2MB
+            showMessage('O arquivo PDF deve ter no máximo 2MB!', 'error');
+            pdfInput.value = '';
+            return;
+        }
+
+        uploadedPdf.innerHTML = `
+            <div class="pdf-item">
+                <div class="pdf-info">
+                    <div class="pdf-icon">📄</div>
+                    <div class="pdf-details">
+                        <div class="pdf-name">${file.name}</div>
+                        <div class="pdf-size">${formatFileSize(file.size)}</div>
+                    </div>
+                </div>
+                <button type="button" class="pdf-remove" onclick="removePdf()">×</button>
+            </div>
+        `;
+        
+        pdfUploadArea.style.display = 'none';
+    }
+
+    // Função para remover PDF
+    window.removePdf = function() {
+        pdfInput.value = '';
+        uploadedPdf.innerHTML = '';
+        pdfUploadArea.style.display = 'block';
+    }
+
+    // Event listeners para upload de PDF
+    pdfInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.type !== 'application/pdf') {
+                showMessage('Apenas arquivos PDF são permitidos!', 'error');
+                pdfInput.value = '';
+                return;
+            }
+            displaySelectedPdf(file);
+        }
+    });
+
+    // Drag and drop para PDF
+    pdfUploadArea.addEventListener('click', () => pdfInput.click());
+
+    pdfUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        pdfUploadArea.classList.add('dragover');
+    });
+
+    pdfUploadArea.addEventListener('dragleave', () => {
+        pdfUploadArea.classList.remove('dragover');
+    });
+
+    pdfUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        pdfUploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type === 'application/pdf') {
+            pdfInput.files = files;
+            displaySelectedPdf(files[0]);
+        } else {
+            showMessage('Apenas arquivos PDF são permitidos!', 'error');
+        }
+    });
+
     // Event listener do formulário
     articleForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         
-        const titulo = tituloInput.value;
-        const conteudo = conteudoInput.value;
-        const autor = autorInput.value;
-        const data = dataInput.value;
+        // Criar FormData para incluir arquivos
+        const formData = new FormData();
+        formData.append('titulo', tituloInput.value);
+        formData.append('conteudo', conteudoInput.value);
+        formData.append('autor', autorInput.value);
+        formData.append('data', dataInput.value);
+        
+        // Adicionar PDF se selecionado
+        if (pdfInput.files[0]) {
+            formData.append('pdf', pdfInput.files[0]);
+        }
 
         // Mostrar loading imediatamente
         showLoading();
@@ -83,11 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await fetch('http://localhost:3001/postArt', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 credentials: 'include',
-                body: JSON.stringify({ titulo, conteudo, autor, data })
+                body: formData // Usar FormData em vez de JSON
             });
 
             const result = await response.json();
@@ -110,12 +191,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 conteudoInput.value = '';
                 autorInput.value = '';
                 dataInput.value = '';
+                removePdf(); // Limpar PDF também
 
-                
-            }, 2000); // 2 segundos de loading mínimo
+            }, 2000);
 
         } catch (err) {
-            // Em caso de erro, também aguardar 2 segundos antes de esconder
             setTimeout(() => {
                 hideLoading();
                 showMessage("Erro de conexão com o servidor", 'error');

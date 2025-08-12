@@ -4,8 +4,8 @@ const artigoSchema = new mongoose.Schema({
   titulo: String,
   conteudo: String,
   autor: String,
-  html:String,
-  data: Date
+  data: Date,
+  pdf: String // campo para armazenar o PDF
 });
 
 module.exports = mongoose.model('Artigo', artigoSchema);
