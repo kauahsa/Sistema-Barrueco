@@ -56,8 +56,9 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 60px;
-            align-items: center;
-            margin-bottom: 80px;
+            align-items: start;
+            margin-bottom: 10px;
+            justify-items: center;
         }
 
         .about-text h3 {
@@ -68,10 +69,32 @@
         }
 
         .about-text p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             line-height: 1.8;
             margin-bottom: 20px;
             color: #555;
+        }
+
+        .about-text {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .primeiro-paragrafo {
+            grid-column: 1;
+           width: 100%;
+        }
+
+        .segundo-paragrafo {
+            grid-column: 1 / -1;
+            /* Ocupa todas as colunas */
+            width: 100%;
+        }
+
+        .terceiro-paragrafo {
+            grid-column: 1;
+            width: 100%;
         }
 
         /* Slider Styles */
@@ -79,25 +102,32 @@
             position: relative;
             overflow: hidden;
             border-radius: 15px;
-           
+
         }
+
 
         .about-image h1 {
             margin: 0;
             padding: 10px 0;
             background-color: transparent;
-            color:#695643;
+            color: #695643;
             /* ou a cor que quiser */
             text-align: center;
+        }
+        .mobile{
+            width: 100%;
         }
 
 
         .slider-container {
             position: relative;
             width: 100%;
-            height: 400px;
+            height: 500px;
+            /* Altura para desktop */
             overflow: hidden;
             border-radius: 15px;
+            max-width: 90%;
+            margin: 0 auto;
         }
 
         .slider-wrapper {
@@ -105,6 +135,7 @@
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             height: 100%;
         }
+
 
         .slider-slide {
             min-width: 100%;
@@ -175,6 +206,9 @@
         .slider-nav:hover i {
             color: white;
         }
+        #especial{
+            display: none;
+        }
 
         /* Dots Indicator */
         .slider-dots {
@@ -203,6 +237,10 @@
             transform: scale(1.2);
         }
 
+        .mobile {
+
+            width: 300px;
+        }
 
         /* Values Section */
         .values-section {
@@ -395,53 +433,80 @@
         /* Responsive */
         @media (max-width: 768px) {
             .about-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                justify-items: stretch;
                 gap: 40px;
             }
 
-            .slider-container {
-                height: 300px;
+            #especial{
+                display: contents;
             }
+        .section{
+            padding: 60px 0px 0px 10px;
+        }
+        .about-text p {
+            font-size: 0.9rem;}
+            
 
-            .slide-content h4 {
-                font-size: 1.5rem;
-            }
+        .slider-container {
+            height: 300px;
+            /* Altura reduzida para mobile */
+            max-width: 95%;
+            /* Largura um pouco maior em mobile */
+        }
 
-            .slide-content p {
-                font-size: 1rem;
-            }
+        /* Ajuste opcional para o título acima do slider */
+        .about-image h1 {
+            font-size: 1.5rem;
+        }
 
-            .slider-nav {
-                width: 40px;
-                height: 40px;
-            }
+        .especial2{
+            display: none;
+        }
+        .mobile {
+            margin-top: 120px;
+            width: 155px;
+        }
 
-            .slider-nav.prev {
-                left: 10px;
-            }
+        .slide-content h4 {
+            font-size: 1.5rem;
+        }
 
-            .slider-nav.next {
-                right: 10px;
-            }
+        .slide-content p {
+            font-size: 1rem;
+        }
 
-            .section-title h2 {
-                font-size: 2rem;
-            }
+        .slider-nav {
+            width: 40px;
+            height: 40px;
+        }
 
-            .timeline::before {
-                left: 20px;
-            }
+        .slider-nav.prev {
+            left: 10px;
+        }
 
-            .timeline-content {
-                margin-left: 70px !important;
-                margin-right: 0 !important;
-                width: calc(100% - 80px);
-            }
+        .slider-nav.next {
+            right: 10px;
+        }
 
-            .timeline-date {
-                left: 20px;
-                transform: none;
-            }
+        .section-title h2 {
+            font-size: 2rem;
+        }
+
+        .timeline::before {
+            left: 20px;
+        }
+
+        .timeline-content {
+            margin-left: 70px !important;
+            margin-right: 0 !important;
+            width: calc(100% - 80px);
+        }
+
+        .timeline-date {
+            left: 20px;
+            transform: none;
+        }
         }
 
         @media (max-width: 480px) {
@@ -456,7 +521,8 @@
             }
 
             .slider-container {
-                height: 250px;
+                height: 300px;
+                /* Mantém 300px mesmo em telas muito pequenas */
             }
 
             .slide-content {
@@ -475,15 +541,15 @@
         <div class="container">
             <div class="nav-container">
                 <div class="logo">
-                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                    <a href="../index.html#inicio" style="text-decoration:none;"><img src="../imagens/logo.png" alt="Barrueco Advogados Logo"></a>
                     <h1></h1>
                 </div>
                 <nav>
                     <ul>
                         <li><a href="../index.html#inicio" class="menu-link">Início</a></li>
-                        <li><a href="sobre.html" class="menu-link">Sobre</a></li>
+                        <li><a href="sobre.html" class="menu-link active">Sobre</a></li>
                         <li><a href="atuacao.html" class="menu-link">Atuação</a></li>
-                        <li><a href="equipe.html" class="menu-link active">Equipe</a></li>
+                        <li><a href="equipe.html" class="menu-link">Equipe</a></li>
                         <li><a href="noticias.html" class="menu-link">Notícias</a></li>
                         <li><a href="contato.html" class="menu-link">Contato</a></li>
                         <li><a href="https://portaldeservicos.pdpj.jus.br/consulta"><button style="margin-left: 90px;"
@@ -494,8 +560,8 @@
         </div>
         <div class="mobile-menu">
             <div class="mobile-logo">
-                <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
-                    alt="Barrueco Advogados Logo">
+               <a href="../index.html#inicio" style="text-decoration:none;"> <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
+                    alt="Barrueco Advogados Logo"></a>
             </div>
             <div class="mobile-menu-icon" id="menu-toggle">
 
@@ -510,7 +576,7 @@
         <div class="mobile-menu-content" id="menu-content">
             <div class="mobile-menu-header">
                 <div class="mobile-menu-logo">
-                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                    <a href="../index.html#inicio" style="text-decoration:none;"><img src="../imagens/logo.png" alt="Barrueco Advogados Logo"></a>
                 </div>
                 <div class="mobile-close-btn" id="menu-close">
                     <span class="close-line close-line1"></span>
@@ -564,16 +630,19 @@
             <div class="mobile-menu-footer">
 
                 <div class="mobile-social-links">
-                    <a target= "_blank"href="https://www.instagram.com/barruecoadvogados/ " class="mobile-social-link">
+                    <a target="_blank" href="https://www.instagram.com/barruecoadvogados/ " class="mobile-social-link">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a target= "_blank"href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false " class="mobile-social-link">
+                    <a target="_blank"
+                        href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false "
+                        class="mobile-social-link">
                         <i class="fab fa-linkedin"></i>
                     </a>
-                    <a target= "_blank"href="https://wa.me/5514981111872" class="mobile-social-link">
+                    <a target="_blank" href="https://wa.me/5514981111872" class="mobile-social-link">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a target= "_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados" class= "mobile-social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a target="_blank" href="https://www.facebook.com/Barruecoadvogados"
+                        class="mobile-social-link"><i class="fab fa-facebook-f"></i></a>
                 </div>
             </div>
         </div>
@@ -584,74 +653,88 @@
                 <div class="about-grid">
                     <div class="about-text">
                         <h3>Nossa História</h3>
-                        <p>Fundado há mais de 20 anos, o escritório Barrueco Advogados Associados nasceu
+                        <p class="primeiro-paragrafo">Fundado há mais de 20 anos, o escritório Barrueco Advogados
+                            Associados nasceu
                             com a proposta de unir conhecimento técnico aprofundado, próprio dos grandes
-                            escritórios, a um atendimento próximo, direto e personalizado. Desde o início,
+                            escritórios, a um atendimento próximo, direto e personalizado.</p><p class="especial2">Desde o início,
                             construímos nossa trajetória com base na ética, na transparência e na dedicação
                             integral aos interesses de nossos clientes.
                             Nossa atuação é pautada na proximidade com o cliente: cada caso é conduzido
                             com acompanhamento direto pelos sócios, proporcionando segurança, agilidade
                             e soluções jurídicas alinhadas à realidade de cada cliente, seja pessoa física,
                             empresa ou grupo familiar.</p>
-                        <p>Com ampla experiência nas áreas Tributária, Empresarial, Societária, Cível e
+                        <p class="especial2" >Com ampla experiência nas áreas Tributária, Empresarial,
+                            Societária, Cível e
                             Trabalhista, buscamos não apenas resolver conflitos, mas também antecipar
                             riscos e estruturar soluções jurídicas seguras e estratégicas, sempre com foco na
                             proteção patrimonial e na estabilidade jurídica de nossos clientes.
                             Mais do que prestar serviços jurídicos, cultivamos relações de confiança e parceria
                             de longo prazo.</p>
                     </div>
-
                     <div class="about-image">
-                        <h1>Conheça nosso Escritório</h1>
-                        <div class="slider-container" style="background-color: transparent;">
-                            <div class="slider-wrapper" id="sliderWrapper">
-                                <div class="slider-slide slide-1"
-                                    style="background-image: url(/imagens/escritorio/entrada.jpg); background-position: center center; background-size: cover;">
+                        <img class="mobile" src="../imagens/escritorio/predio.jpg" alt="Prédio do Escritório"
+                            style=" border-radius:15px;">
+                    </div>
+                </div>
+                <div class="about-text" id="especial">
+                     <p>Desde o início,
+                            construímos nossa trajetória com base na ética, na transparência e na dedicação
+                            integral aos interesses de nossos clientes.
+                            Nossa atuação é pautada na proximidade com o cliente: cada caso é conduzido
+                            com acompanhamento direto pelos sócios, proporcionando segurança, agilidade
+                            e soluções jurídicas alinhadas à realidade de cada cliente, seja pessoa física,
+                            empresa ou grupo familiar.</p>
+                        <p >Com ampla experiência nas áreas Tributária, Empresarial,
+                            Societária, Cível e
+                            Trabalhista, buscamos não apenas resolver conflitos, mas também antecipar
+                            riscos e estruturar soluções jurídicas seguras e estratégicas, sempre com foco na
+                            proteção patrimonial e na estabilidade jurídica de nossos clientes.
+                            Mais do que prestar serviços jurídicos, cultivamos relações de confiança e parceria
+                            de longo prazo.</p>
+                </div>
 
-                                </div>
-                                <div class="slider-slide slide-2"
-                                    style="background-image: url(/imagens/escritorio/sala.jpg); background-position: center center; background-size: cover;">
-
-                                </div>
-                                <div class="slider-slide slide-3"
-                                    style="background-image: url(/imagens/escritorio/sala2.jpg); background-position: center center; background-size: cover;">
-
-                                </div>
-                                <div class="slider-slide slide-4"
-                                    style="background-image: url(/imagens/escritorio/cafeteria.jpg); background-position: center center; background-size: cover;">
-
-                                </div>
-                                <div class="slider-slide slide-5"
-                                    style="background-image: url(/imagens/escritorio/varanda.jpg); background-position: center center; background-size: cover;">
-
-                                </div>
-                                <div class="slider-slide slide-6"
-                                    style="background-image: Url(/imagens/escritorio/predio.jpg), linear-gradient(135deg, rgba(105, 86, 67, 0.7), rgba(72, 98, 108, 0.7)); background-size:contain; background-repeat:no-repeat; ">
-
-                                </div>
+                <div class="about-image"
+                    style="grid-column: 1 / -1; margin-top: 40px; max-width: 90%; margin-left: auto; margin-right: auto;">
+                    <h1>Conheça nosso Escritório</h1>
+                    <div class="slider-container" style="background-color: transparent;">
+                        <div class="slider-wrapper" id="sliderWrapper">
+                            <div class="slider-slide slide-1"
+                                style="background-image: url(../imagens/escritorio/entrada.jpg); background-position: center; background-size: cover;">
+                            </div>
+                            <div class="slider-slide slide-2"
+                                style="background-image: url(../imagens/escritorio/sala.jpg); background-position: center; background-size: cover;">
+                            </div>
+                            <div class="slider-slide slide-3"
+                                style="background-image: url(../imagens/escritorio/sala2.jpg); background-position: center center; background-size: cover;">
+                            </div>
+                            <div class="slider-slide slide-4"
+                                style="background-image: url(../imagens/escritorio/cafeteria.jpg); background-position: center center; background-size: cover;">
+                            </div>
+                            <div class="slider-slide slide-5"
+                                style="background-image: url(../imagens/escritorio/varanda.jpg); background-position: center; background-size: cover;">
                             </div>
 
-                            <button class="slider-nav prev" onclick="changeSlide(-1)">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="slider-nav next" onclick="changeSlide(1)">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
+                        </div>
 
-                            <div class="slider-dots">
-                                <button class="dot active" onclick="currentSlide(1)"></button>
-                                <button class="dot" onclick="currentSlide(2)"></button>
-                                <button class="dot" onclick="currentSlide(3)"></button>
-                                <button class="dot" onclick="currentSlide(4)"></button>
-                                <button class="dot" onclick="currentSlide(5)"></button>
-                                <button class="dot" onclick="currentSlide(6)"></button>
-                            </div>
+                        <button class="slider-nav prev" onclick="changeSlide(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="slider-nav next" onclick="changeSlide(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+
+                        <div class="slider-dots">
+                            <button class="dot active" onclick="currentSlide(1)"></button>
+                            <button class="dot" onclick="currentSlide(2)"></button>
+                            <button class="dot" onclick="currentSlide(3)"></button>
+                            <button class="dot" onclick="currentSlide(4)"></button>
+                            <button class="dot" onclick="currentSlide(5)"></button>
+
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-
         <section class="values-section">
             <div class="container">
                 <div class="section-title">
@@ -714,7 +797,8 @@
                         <div class="timeline-date">2004</div>
                         <div class="timeline-content">
                             <h4>Nova Sede</h4>
-                            <p>Muda-se a sede para o Edifício Sant James na Avenida Cidade Jardim 377, Itaim Bibi, São Paulo.</p>
+                            <p>Muda-se a sede para o Edifício Sant James na Avenida Cidade Jardim 377, Itaim
+                                Bibi, São Paulo.</p>
                         </div>
                     </div>
                     <div class="timeline-item">
@@ -771,7 +855,77 @@
             </div>
         </section>
     </main>
+      <section id="contato" class="contact section" style="padding-bottom: 20px;">
+        <div class="container">
+            <div class="section-title">
+                <h3 style="color: white;">Entre em Contato</h3>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Fale Conosco</h3>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p style="text-decoration: none; color: white;">Matriz: Av.Cidade Jardim, 377 - 9°andar - Itaim Bibi - São Paulo/SP - CEP <span style="text-decoration:none; color: white; text-underline-offset: 5px;">01453-000</span> <br><br> Filial: Rua Iporans, 737 - Sala 10, Centro - Tupã/SP - CEP 17601-170</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                    
+                            <p>
+                                <a href="tel:1131681111" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                    (11) 3168-1111
+                                </a> <br> <a href="tel:1150438875" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                (11) 5043-8875
+                            </a> <br>
+                             <a href="tel:1434914492" style="text-decoration: underline; color: white; letter-spacing: 2px; text-underline-offset: 5px;">
+                                (14) 3491-4492
+                            </a> 
+                            </p>
+                            </div>
+                          
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <p>contato@barruecoadvogados.com.br</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <p>Segunda a Sexta: 8h às 18h</p>
+                        </div>
+                    </div>
+                   <div class="social-icons">
+                        <a target="_blank" href="https://www.facebook.com/Barruecoadvogados"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href=" https://www.instagram.com/barruecoadvogados/ "><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false"><i class="fab fa-linkedin-in"></i></a>
+                        <a target="_blank" href="https://wa.me/5514981111872"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
 
+                <div class="contact-form">
+                    <form action="https://formspree.io/f/xrblkkpj"
+  method="POST" id="contactForm">
+                        <div class="form-group">
+                            <input type="text" name="nome" placeholder="Seu nome" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Seu e-mail" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="telefone" placeholder="Seu telefone">
+                        </div>
+                        <div class="form-group">
+                            <textarea name="mensagem" rows="5" placeholder="Sua mensagem" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-form" style="color: white;">Enviar Mensagem</button>
+                    </form>
+                     <p id="my-form-status"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
     <footer>
         <div class="container">
             <div class="footer-links">
@@ -787,7 +941,39 @@
     </footer>
 
     <script>
-         document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener("DOMContentLoaded", function() {
+  var form = document.getElementById("contactForm");
+  
+  async function handleSubmit(event) {
+    event.preventDefault();
+    var status = document.getElementById("my-form-status");
+    var data = new FormData(event.target);
+    fetch(event.target.action, {
+      method: form.method,
+      body: data,
+      headers: {
+          'Accept': 'application/json'
+      }
+    }).then(response => {
+      if (response.ok) {
+        status.innerHTML = "Mensagem Enviada Com Sucesso!";
+        form.reset()
+      } else {
+        response.json().then(data => {
+          if (Object.hasOwn(data, 'errors')) {
+            status.innerHTML = data["errors"].map(error => error["message"]).join(", ")
+          } else {
+            status.innerHTML = "Falha no envio da Mensagem"
+          }
+        })
+      }
+    }).catch(error => {
+      status.innerHTML = "Falaha no envio da Mensagem"
+    });
+  }
+  form.addEventListener("submit", handleSubmit)
+});
+        document.addEventListener('DOMContentLoaded', function () {
             const menuToggle = document.getElementById('menu-toggle');
             const menuClose = document.getElementById('menu-close');
             const menuContent = document.getElementById('menu-content');

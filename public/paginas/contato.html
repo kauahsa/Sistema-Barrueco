@@ -24,7 +24,7 @@
         <div class="container">
             <div class="nav-container">
                 <div class="logo">
-                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                <a href="../index.html#inicio" style="text-decoration: none;">   <a href="../index.html#inicio" style="text-decoration:none;"> <img src="../imagens/logo.png" alt="Barrueco Advogados Logo"></a>
                     <h1></h1>
                 </div>
                 <nav>
@@ -42,8 +42,8 @@
         </div>
         <div class="mobile-menu">
             <div class="mobile-logo">
-                <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
-                    alt="Barrueco Advogados Logo">
+              <a href="../index.html#inicio" style="text-decoration:none;">  <img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
+                    alt="Barrueco Advogados Logo"></a>
             </div>
             <div class="mobile-menu-icon" id="menu-toggle">
 
@@ -58,7 +58,7 @@
         <div class="mobile-menu-content" id="menu-content">
             <div class="mobile-menu-header">
                 <div class="mobile-menu-logo">
-                    <img src="../imagens/logo.png" alt="Barrueco Advogados Logo">
+                  <a href="../index.html#inicio" style="text-decoration:none;">  <img src="../imagens/logo.png" alt="Barrueco Advogados Logo"></a>
                 </div>
                 <div class="mobile-close-btn" id="menu-close">
                     <span class="close-line close-line1"></span>
@@ -121,7 +121,7 @@
                     <a target="_blank" href="https://wa.me/5514981111872" class="mobile-social-link">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a target="_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados "><i class="fab fa-facebook-f"></i></a>
+                    <a target="_blank" href="https://www.facebook.com/Barruecoadvogados" class="mobile-social-link"><i class="fab fa-facebook-f"></i></a>
                 </div>
             </div>
         </div>
@@ -160,7 +160,7 @@
                     </div>
                 </a>
 
-                <a href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados " class="social-platform">
+                <a href="https://www.facebook.com/Barruecoadvogados" class="social-platform">
                     <div class="platform-icon">
                         <i class="fab fa-facebook"></i>
                     </div>
@@ -217,7 +217,7 @@
                         </div>
                     </div>
                    <div class="social-icons">
-                        <a target="_blank" href="https://www.facebook.com/search/top?q=barrueco%20advogados%20associados "><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://www.facebook.com/Barruecoadvogados"><i class="fab fa-facebook-f"></i></a>
                         <a target="_blank" href=" https://www.instagram.com/barruecoadvogados/ "><i class="fab fa-instagram"></i></a>
                         <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false"><i class="fab fa-linkedin-in"></i></a>
                         <a target="_blank" href="https://wa.me/5514981111872"><i class="fab fa-whatsapp"></i></a>
@@ -225,7 +225,8 @@
                 </div>
 
                 <div class="contact-form">
-                    <form id="contactForm">
+                    <form action="https://formspree.io/f/xrblkkpj"
+  method="POST" id="contactForm">
                         <div class="form-group">
                             <input type="text" name="nome" placeholder="Seu nome" required>
                         </div>
@@ -240,13 +241,16 @@
                         </div>
                         <button type="submit" class="btn btn-form" style="color: white;">Enviar Mensagem</button>
                     </form>
+                     <p id="my-form-status"></p>
                 </div>
             </div>
         </div>
     </section>
     
     
-
+ <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+      </a>
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -264,6 +268,40 @@
 
 
     <script src="../script.js"></script>
+    <script> 
+    document.addEventListener("DOMContentLoaded", function() {
+  var form = document.getElementById("contactForm");
+  
+  async function handleSubmit(event) {
+    event.preventDefault();
+    var status = document.getElementById("my-form-status");
+    var data = new FormData(event.target);
+    fetch(event.target.action, {
+      method: form.method,
+      body: data,
+      headers: {
+          'Accept': 'application/json'
+      }
+    }).then(response => {
+      if (response.ok) {
+        status.innerHTML = "Mensagem Enviada Com Sucesso!";
+        form.reset()
+      } else {
+        response.json().then(data => {
+          if (Object.hasOwn(data, 'errors')) {
+            status.innerHTML = data["errors"].map(error => error["message"]).join(", ")
+          } else {
+            status.innerHTML = "Falha no envio da Mensagem"
+          }
+        })
+      }
+    }).catch(error => {
+      status.innerHTML = "Falaha no envio da Mensagem"
+    });
+  }
+  form.addEventListener("submit", handleSubmit)
+});
+    </script>
 
 </body>
 </html>

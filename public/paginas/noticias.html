@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  
   <style>
     /* Paleta de cores baseada em #695643 */
     :root {
@@ -52,6 +53,30 @@
       position: relative;
       overflow: hidden;
     }
+    #zap {
+    text-decoration: none;
+    position: fixed;
+    z-index: 100;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all ease 0.2s;
+  }
+  
+  #zap:hover {
+    width: 65px;
+    height: 65px;
+    transition: all ease 0.2s;
+  }
 
     .header::before {
       content: '';
@@ -772,12 +797,8 @@
       </div>
     </div>
   </div>
-
+  
   <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-      </a>
-
-      <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
         <i class="fab fa-whatsapp"></i>
       </a>
 
