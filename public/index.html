@@ -1619,18 +1619,6 @@
                 <p>Mantenha-se atualizado com as principais notícias do universo jurídico</p>
             </div>
             
-            <!-- Filtros de Notícias -->
-            <div class="news-filters">
-                <button class="filter-btn active" onclick="filtrarNoticias('todas')">
-                    <i class="fas fa-list"></i> Todas
-                </button>
-                <button class="filter-btn" onclick="filtrarNoticias('destaque')">
-                    <i class="fas fa-star"></i> Destaques
-                </button>
-                <button class="filter-btn" onclick="filtrarNoticias('recentes')">
-                    <i class="fas fa-clock"></i> Recentes
-                </button>
-            </div>
 
             <!-- Container de Notícias -->
             <div id="noticias" class="news-grid">
@@ -1640,6 +1628,9 @@
                     <p>Carregando notícias...</p>
                 </div>
             </div>
+            <div class="section-cta" style="text-align: center; margin-top: 40px;">
+            <a href="paginas/noticias.html" class="btn">Ver Mais Notícias</a>
+        </div>
         </div>
     </section>
 
@@ -1659,7 +1650,9 @@
                     <p>Carregando artigos...</p>
                 </div>
             </div>
-
+<div class="section-cta" style="text-align: center; margin-top: 40px;">
+            <a href="paginas/noticias.html#artigos" class="btn">Ver Mais Artigos</a>
+        </div>
             
         </div>
     </section>
@@ -1833,10 +1826,11 @@
                     throw new Error(`Erro HTTP: ${res.status}`);
                 }
                 
-                const noticias = await res.json();
-                noticiasOriginais = noticias;
+               let noticias = await res.json();   // <= use let aqui
+noticiasOriginais = noticias;
 
-                noticias = noticias.slice(0, 6);
+noticias = noticias.slice(0, 1);
+                
                 
                 if (noticias.length === 0) {
                     mostrarErro('Nenhuma notícia encontrada no momento');
@@ -1964,7 +1958,12 @@
                     throw new Error(`Erro HTTP: ${res.status}`);
                 }
                 
-                const artigos = await res.json();
+                
+                
+                 let artigos = await res.json();   // <= use let aqui
+               
+
+                artigos = artigos.slice(0, 1);
 
                 container.innerHTML = '';
 
