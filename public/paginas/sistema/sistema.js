@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showLoading();
 
         try {
-            const response = await fetch('http://localhost:3001/postArt', {
+            const response = await fetch('https://sistema-barrueco.onrender.com/postArt', {
                 method: 'POST',
                 credentials: 'include',
                 body: formData // Usar FormData em vez de JSON
