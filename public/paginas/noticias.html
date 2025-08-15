@@ -6,10 +6,11 @@
   <title>Notícias Jurídicas | Barrueco Advogados</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="../imagens/favicon.ico" type="image/x-icon">
   
   
   <style>
-    /* Paleta de cores baseada em #695643 */
+    
     :root {
       --primary: #695643;
       --primary-dark: #4a3c2e;
@@ -129,6 +130,32 @@
       align-items: center;
       padding: 3rem 0;
     }
+    #voltar {
+  text-decoration: none;
+  position: fixed;
+  z-index: 100;
+  bottom: 90px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  box-shadow: 0 4px 15px var(--shadow-medium);
+  transition: all ease 0.3s;
+}
+
+#voltar:hover {
+  width: 65px;
+  height: 65px;
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  box-shadow: 0 6px 20px var(--shadow-dark);
+  transform: translateY(-2px);
+}
 
     .spinner {
       width: 50px;
@@ -797,7 +824,11 @@
       </div>
     </div>
   </div>
+
   
+<a href="../index.html" id="voltar">
+  <i class="fas fa-home"></i>
+</a>
   <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
         <i class="fab fa-whatsapp"></i>
       </a>
@@ -849,8 +880,10 @@
           throw new Error(`Erro HTTP: ${res.status}`);
         }
         
-        const noticias = await res.json();
-        noticiasOriginais = noticias;
+        let noticias = await res.json();   // <= use let aqui
+noticiasOriginais = noticias;
+
+noticias = noticias.slice(0, 6);
         
         if (noticias.length === 0) {
           mostrarErro('Nenhuma notícia encontrada no momento');
