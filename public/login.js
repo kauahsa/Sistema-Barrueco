@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 setTimeout(() => {
                     // Sempre redirecionar para sistema sem parâmetros extras
-                    window.location.href = '/sistema/sistema.html';
+                    window.location.href = 'paginas/sistema/sistema.html';
                 }, 2000);
 
             } else {
