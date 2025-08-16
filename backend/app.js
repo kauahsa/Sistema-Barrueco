@@ -24,18 +24,31 @@ app.use(cookieParser());
 app.use(cors({
   origin: [
     'https://barruecoadvogados.com.br',
+    'https://www.barruecoadvogados.com.br', // Adicione também a versão com www
     'http://localhost:3000',
     'https://sistema-barrueco.onrender.com'
   ],
   credentials: true,
-  exposedHeaders: ['set-cookie']
+  exposedHeaders: ['set-cookie'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 
 // Função de verificação de token
 function checkToken(req, res, next) {
-    const token = req.cookies.token;
-    console.log('Token recebido:', token); // Adicione este log
+    let token = null;
     
+    // Primeiro, tentar pegar do cookie
+    token = req.cookies.token;
+    console.log('Token do cookie:', token);
+    
+    // Se não encontrou no cookie, tentar do header Authorization
+    if (!token && req.headers.authorization) {
+        const authHeader = req.headers.authorization;
+        if (authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7);
+            console.log('Token do Authorization header:', token);
+        }
+    }
 
     if (!token) {
         console.log('Nenhum token encontrado');
@@ -47,13 +60,16 @@ function checkToken(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.SECRET);
         req.adminId = decoded.id;
+        console.log('Token válido para admin:', decoded.id);
         next();
-    } catch {
+    } catch (error) {
+        console.log('Token inválido:', error.message);
         return req.accepts('html')
             ? res.redirect('/login')
             : res.status(400).json({ msg: "Token inválido" });
     }
 }
+
 
 // Servir arquivos estáticos
 app.use('/sistema', checkToken, express.static(path.join(__dirname, '..', 'public', 'paginas', 'sistema')));
@@ -106,29 +122,33 @@ app.post('/auth/login', async (req, res) => {
         return res.status(422).json({ msg: 'A senha deve ter no mínimo 8 caracteres!' });
     }
 
-    const admin = await admins.findOne({ username, password });
-    if (!admin) {
-        return res.status(404).json({ msg: 'Usuário ou senha inválidos' });
+    try {
+        const admin = await admins.findOne({ username, password });
+        if (!admin) {
+            return res.status(404).json({ msg: 'Usuário ou senha inválidos' });
+        }
+
+        const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '3h' });
+        
+        // Configurar cookie (para mesmo domínio)
+        res.cookie('token', token, { 
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            maxAge: 1000 * 60 * 60 * 3 // 3 horas
+        });
+
+        // Enviar token também no JSON (para cross-domain)
+        res.json({ 
+            msg: "Autenticação realizada com sucesso",
+            token: token,
+            expiresIn: '3h'
+        });
+    } catch (error) {
+        console.error('Erro no login:', error);
+        res.status(500).json({ msg: 'Erro interno do servidor' });
     }
-
-   
-    const token = jwt.sign({ id: admin._id }, process.env.SECRET);
-    
-    // Configura o cookie (como antes)
-    res.cookie('token', token, { 
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-        maxAge: 1000 * 60 * 60 * 3
-    });
-
-    // ADICIONE ISSO: Envia o token também no JSON
-    res.json({ 
-        msg: "Autenticação realizada com sucesso",
-        token: token // Isso será usado pelo fallback
-    });
 });
-    
   
 
 // Publicar artigo
