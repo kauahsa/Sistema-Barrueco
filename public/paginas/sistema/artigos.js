@@ -183,7 +183,7 @@ function handleEditArticle(e) {
 
 async function deleteArticle(artigoId, cardElement) {
     try {
-        const resp = await fetch(`ttps://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
+        const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
             method: 'DELETE',
             credentials: 'include',
             headers: {
