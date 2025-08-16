@@ -23,9 +23,9 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: [
-    'https://barruecoadvogados.com.br', 
+    'https://barruecoadvogados.com.br',
     'http://localhost:3000',
-    'https://sistema-barrueco.onrender.com' // ou seu domínio de produção
+    'https://sistema-barrueco.onrender.com'
   ],
   credentials: true,
   exposedHeaders: ['set-cookie']
@@ -112,11 +112,14 @@ app.post('/auth/login', async (req, res) => {
 
     const token = jwt.sign({ id: admin._id }, process.env.SECRET);
    res.cookie('token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // só HTTPS em produção
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    maxAge: 1000 * 60 * 60 * 3
-});
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'None',
+        domain: '.barruecoadvogados.com.br', // Adicione isto
+        path: '/', // Importante
+        maxAge: 1000 * 60 * 60 * 3
+    });
+      res.header('Access-Control-Allow-Credentials', 'true');
 
     console.log('Admin encontrado:', admin);
     console.log('Token gerado:', token);
