@@ -183,7 +183,7 @@ function handleEditArticle(e) {
 
 async function deleteArticle(artigoId, cardElement) {
     try {
-        const resp = await fetch(`/artigos/${artigoId}`, {
+        const resp = await fetch(`ttps://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
             method: 'DELETE',
             credentials: 'include',
             headers: {
@@ -274,7 +274,7 @@ function abrirFormularioEdicao(card) {
             const pdfFile = document.getElementById('editPdf').files[0];
             if (pdfFile) formData.append('pdf', pdfFile);
 
-            const resp = await fetch(`/artigos/${artigoId}`, {
+            const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
                 method: 'PUT',
                 body: formData,
                 credentials: 'include'
