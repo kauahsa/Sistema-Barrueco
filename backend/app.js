@@ -22,9 +22,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: 'https://barruecoadvogados.com.br',
+  origin: ['https://barruecoadvogados.com.br', 'http://localhost:3000'],
   credentials: true
 }));
+
 // Função de verificação de token
 function checkToken(req, res, next) {
     const token = req.cookies.token;
@@ -104,11 +105,11 @@ app.post('/auth/login', async (req, res) => {
 
     const token = jwt.sign({ id: admin._id }, process.env.SECRET);
     res.cookie('token', token, {
-        httpOnly: true,
-        secure: false, // Em produção use true
-        sameSite: 'Strict',
-        maxAge: 1000 * 60 * 60 * 3
-    });
+    httpOnly: true,
+    secure: true, // ✅ agora aceita só HTTPS
+    sameSite: 'None', // ✅ permite enviar cookie em requests cross-site
+    maxAge: 1000 * 60 * 60 * 3
+});
 
     res.json({ msg: "Autenticação realizada com sucesso" });
 });
