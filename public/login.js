@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
     
+     if (response.ok && !document.cookie.includes('token')) {
+        localStorage.setItem('jwt_token', data.token); // O backend precisa enviar o token no JSON
+        window.location.href = '/sistema/sistema.html?auth=local';
+        return; // Importante para evitar execução duplicada
+    }
+
     showMessage(data.msg, 'success');
     setTimeout(() => {
         window.location.href = '/sistema/sistema.html';

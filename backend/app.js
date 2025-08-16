@@ -35,6 +35,7 @@ app.use(cors({
 function checkToken(req, res, next) {
     const token = req.cookies.token;
     console.log('Token recebido:', token); // Adicione este log
+    
 
     if (!token) {
         console.log('Nenhum token encontrado');
@@ -110,29 +111,25 @@ app.post('/auth/login', async (req, res) => {
         return res.status(404).json({ msg: 'Usuário ou senha inválidos' });
     }
 
+   
     const token = jwt.sign({ id: admin._id }, process.env.SECRET);
-   res.cookie('token', token, {
-  httpOnly: true,
-  secure: true, // Para produção (HTTPS)
-  sameSite: 'None', // Crucial para cross-site
-  domain: '.barruecoadvogados.com.br', // Note o ponto inicial
-  path: '/', // Disponível em todas as rotas
-  maxAge: 1000 * 60 * 60 * 3, // 3 horas
-  partitioned: true // Novo atributo para cookies em contexto cross-site
-});
-
-      res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Access-Control-Expose-Headers', 'Set-Cookie');
-res.header('Cache-Control', 'no-store');
-
-    console.log('Admin encontrado:', admin);
-    console.log('Token gerado:', token);
     
-    res.cookie('token', token, { /* configurações */ });
-    console.log('Cookie definido');
-    
-    res.json({ msg: "Autenticação realizada com sucesso" });
+    // Configura o cookie (como antes)
+    res.cookie('token', token, { 
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 1000 * 60 * 60 * 3
+    });
+
+    // ADICIONE ISSO: Envia o token também no JSON
+    res.json({ 
+        msg: "Autenticação realizada com sucesso",
+        token: token // Isso será usado pelo fallback
+    });
 });
+    
+  
 
 // Publicar artigo
 app.post('/postArt', checkToken, upload.single('pdf'), async (req, res) => {
