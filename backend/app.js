@@ -17,10 +17,14 @@ const Artigo = require('./models/artigo');
 const app = express();
 const parser = new Parser();
 
-app.use(cors());
+
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(cors({
+  origin: 'https://barruecoadvogados.com.br',
+  credentials: true
+}));
 // Função de verificação de token
 function checkToken(req, res, next) {
     const token = req.cookies.token;
