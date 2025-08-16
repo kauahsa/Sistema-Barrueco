@@ -117,5 +117,33 @@
 
     <script src="./sistema.js"></script>
     <script src="./auth-middleware.js"></script>
+    <!-- Adicione este script no <head> do sistema.html -->
+<script>
+console.log('=== DEBUG DE AUTENTICAÇÃO ===');
+console.log('1. URL atual:', window.location.href);
+console.log('2. Token no localStorage:', localStorage.getItem('jwt_token'));
+console.log('3. Cookies disponíveis:', document.cookie);
+console.log('4. Parâmetros da URL:', window.location.search);
+
+// Testar se a API está respondendo
+fetch('https://sistema-barrueco.onrender.com/api', {
+    method: 'GET',
+    headers: {
+        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+    }
+})
+.then(response => {
+    console.log('5. Resposta da API:', response.status, response.statusText);
+    return response.json();
+})
+.then(data => {
+    console.log('6. Dados da API:', data);
+})
+.catch(error => {
+    console.log('7. Erro na API:', error);
+});
+
+console.log('=== FIM DEBUG ===');
+</script>
 </body>
 </html>
