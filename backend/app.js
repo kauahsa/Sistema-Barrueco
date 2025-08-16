@@ -1,3 +1,5 @@
+
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -15,23 +17,25 @@ const Artigo = require('./models/artigo');
 const app = express();
 const parser = new Parser();
 
+
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS configurado para seu domínio personalizado
 app.use(cors({
   origin: [
     'https://barruecoadvogados.com.br',
-    'https://www.barruecoadvogados.com.br',
-    'http://localhost:3000' // para desenvolvimento local
+    'http://localhost:3000',
+    'https://sistema-barrueco.onrender.com'
   ],
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['set-cookie']
 }));
 
-// Função de verificação de token SIMPLIFICADA
+// Função de verificação de token
 function checkToken(req, res, next) {
     const token = req.cookies.token;
-    console.log('Token do cookie:', token);
+    console.log('Token recebido:', token); // Adicione este log
+    
 
     if (!token) {
         console.log('Nenhum token encontrado');
@@ -45,22 +49,21 @@ function checkToken(req, res, next) {
         req.adminId = decoded.id;
         next();
     } catch {
-        console.log('Token inválido');
         return req.accepts('html')
             ? res.redirect('/login')
             : res.status(400).json({ msg: "Token inválido" });
     }
 }
 
-// SERVIR ARQUIVOS ESTÁTICOS - TUDO NO RENDER
-app.use('/sistema', checkToken, express.static(path.join(__dirname, 'public', 'sistema')));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Servir arquivos estáticos
+app.use('/sistema', checkToken, express.static(path.join(__dirname, '..', 'public', 'paginas', 'sistema')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Configuração do multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, 'uploads');
+        const uploadPath = path.join(__dirname, '..', 'uploads');
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
         }
@@ -82,24 +85,16 @@ const upload = multer({
     }
 });
 
-// ROTAS PRINCIPAIS
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
+// Rotas simples
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'login.html')));
+app.get('/api', checkToken, (req, res) => res.json({ msg: "Olá, bem vindo a API" }));
 app.get('/admin', checkToken, (req, res) => {
-    res.redirect('/sistema/sistema.html');
+  return res.redirect('/sistema/sistema.html');
 });
 
-app.get('/api', checkToken, (req, res) => {
-    res.json({ msg: "Olá, bem vindo a API" });
-});
 
-// LOGIN SIMPLIFICADO
+// Login
 app.post('/auth/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -111,41 +106,46 @@ app.post('/auth/login', async (req, res) => {
         return res.status(422).json({ msg: 'A senha deve ter no mínimo 8 caracteres!' });
     }
 
-    try {
-        const admin = await admins.findOne({ username, password });
-        if (!admin) {
-            return res.status(404).json({ msg: 'Usuário ou senha inválidos' });
-        }
-
-        const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '3h' });
-        
-        // Cookie simples para mesmo domínio
-        res.cookie('token', token, { 
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 1000 * 60 * 60 * 3
-        });
-
-        res.json({ msg: "Autenticação realizada com sucesso" });
-    } catch (error) {
-        console.error('Erro no login:', error);
-        res.status(500).json({ msg: 'Erro interno do servidor' });
+    const admin = await admins.findOne({ username, password });
+    if (!admin) {
+        return res.status(404).json({ msg: 'Usuário ou senha inválidos' });
     }
-});
 
-// Logout
-app.post('/auth/logout', (req, res) => {
-    res.clearCookie('token');
-    res.json({ msg: 'Logout realizado com sucesso' });
-});
+   
+    const token = jwt.sign({ id: admin._id }, process.env.SECRET);
+    
+    // Configura o cookie (como antes)
+    res.cookie('token', token, { 
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 1000 * 60 * 60 * 3
+    });
 
-// CRUD de Artigos
+    // ADICIONE ISSO: Envia o token também no JSON
+    res.json({ 
+        msg: "Autenticação realizada com sucesso",
+        token: token // Isso será usado pelo fallback
+    });
+});
+    
+  
+
+// Publicar artigo
 app.post('/postArt', checkToken, upload.single('pdf'), async (req, res) => {
     const { titulo, conteudo, autor, data } = req.body;
 
-    if (!titulo || !conteudo || !autor || !data) {
-        return res.status(422).json({ msg: "Todos os campos são obrigatórios" });
+    if (!titulo) {
+        return res.status(422).json({ msg: "É necessário um titulo" });
+    }
+     if (!conteudo) {
+        return res.status(422).json({ msg: "Adicione um resumo!" });
+    }
+     if (!autor) {
+        return res.status(422).json({ msg: "Cite o autor do Artigo!" });
+    }
+     if (!data) {
+        return res.status(422).json({ msg: "Adicione uma data!" });
     }
 
     try {
@@ -160,29 +160,29 @@ app.post('/postArt', checkToken, upload.single('pdf'), async (req, res) => {
         await novoArtigo.save();
         res.status(201).json({ msg: "Artigo publicado com sucesso!" });
     } catch (error) {
-        console.error('Erro ao publicar artigo:', error);
         res.status(500).json({ msg: "Erro ao publicar artigo" });
     }
 });
 
+// Deletar artigo
 app.delete('/artigos/:id', checkToken, async (req, res) => {
     try {
         const artigo = await Artigo.findById(req.params.id);
         if (!artigo) return res.status(404).json({ msg: 'Artigo não encontrado' });
 
         if (artigo.pdf) {
-            const pdfPath = path.join(__dirname, artigo.pdf);
+            const pdfPath = path.join(__dirname, '..', artigo.pdf);
             if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
         }
 
         await Artigo.findByIdAndDelete(req.params.id);
         res.json({ msg: 'Artigo deletado com sucesso!' });
-    } catch (error) {
-        console.error('Erro ao deletar artigo:', error);
+    } catch {
         res.status(500).json({ msg: 'Erro interno ao deletar artigo' });
     }
 });
 
+// Atualizar artigo
 app.put('/artigos/:id', checkToken, upload.single('pdf'), async (req, res) => {
     try {
         const artigo = await Artigo.findById(req.params.id);
@@ -191,7 +191,7 @@ app.put('/artigos/:id', checkToken, upload.single('pdf'), async (req, res) => {
         const updateData = { ...req.body };
         if (req.file) {
             if (artigo.pdf) {
-                const oldPath = path.join(__dirname, artigo.pdf);
+                const oldPath = path.join(__dirname, '..', artigo.pdf);
                 if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
             }
             updateData.pdf = `/uploads/${req.file.filename}`;
@@ -199,28 +199,18 @@ app.put('/artigos/:id', checkToken, upload.single('pdf'), async (req, res) => {
 
         const updated = await Artigo.findByIdAndUpdate(req.params.id, updateData, { new: true });
         res.json({ msg: 'Artigo atualizado com sucesso', artigo: updated });
-    } catch (error) {
-        console.error('Erro ao atualizar artigo:', error);
+    } catch {
         res.status(500).json({ msg: 'Erro interno ao atualizar artigo' });
-    }
-});
-
-// API Pública
-app.get('/artigos', async (req, res) => {
-    try {
-        const artigos = await Artigo.find().sort({ data: -1 }).limit(10);
-        res.json(artigos);
-    } catch (error) {
-        res.status(500).json({ msg: 'Erro ao buscar artigos' });
     }
 });
 
 // Notícias
 async function buscarNoticias() {
     const fontes = [
-        { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
+      { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
         { nome: 'STF', url: 'https://portal.stf.jus.br/rss/STF-noticias.xml' },
         { nome: 'STJ', url: 'https://res.stj.jus.br/hrestp-c-portalp/RSS.xml' }
+        
     ];
 
     const todasNoticias = [];
@@ -244,21 +234,15 @@ async function buscarNoticias() {
 }
 
 app.get('/noticias', async (req, res) => {
-    try {
-        const noticias = await buscarNoticias();
-        res.json(noticias);
-    } catch (error) {
-        res.status(500).json({ msg: 'Erro ao buscar notícias' });
-    }
+    res.json(await buscarNoticias());
 });
 
-// Conexão MongoDB e inicialização
+app.get('/artigos', async (req, res) => {
+    res.json(await Artigo.find().sort({ data: -1 }).limit(10));
+});
+// Conexão MongoDB
 mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wsmqk1n.mongodb.net/BarruecoAdmin?retryWrites=true&w=majority&appName=Cluster0`)
     .then(() => {
-        const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
-            console.log(`Servidor rodando na porta ${PORT}`);
-            console.log(`Acesse: https://sistema-barrueco.onrender.com`);
-        });
+        app.listen(3001, () => console.log("Servidor rodando na porta 3001"));
     })
     .catch(console.error);
