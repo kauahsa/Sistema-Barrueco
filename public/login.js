@@ -1,55 +1,89 @@
-//Recebendo Formulario 
+// Login Handler
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('Login script carregado');
+    
     const loginForm = document.getElementById('loginForm');
     const loginBtn = document.querySelector('.login-btn');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
 
+    if (!loginForm) {
+        console.error('Formulário de login não encontrado!');
+        return;
+    }
+
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        console.log('Formulário submetido');
 
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-        const remember = document.getElementById('remember')?.checked;
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
 
+        console.log('Dados do login:', { username: username, password: '***' });
+
+        if (!username || !password) {
+            showMessage('Preencha todos os campos', 'error');
+            return;
+        }
+
+        // Mostrar loading
         loginBtn.classList.add('loading');
         loginBtn.querySelector('span').style.opacity = '0';
 
         try {
+            console.log('Fazendo requisição para a API...');
+            
             const response = await fetch('https://sistema-barrueco.onrender.com/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({ username, password }) 
+                body: JSON.stringify({ username, password })
             });
 
             console.log('Response status:', response.status);
             console.log('Response headers:', [...response.headers.entries()]);
-            
+
             const data = await response.json();
             console.log('Response data:', data);
 
-            if (response.ok) {
-                // SEMPRE salvar token no localStorage (funciona cross-domain)
-                if (data.token) {
-                    localStorage.setItem('jwt_token', data.token);
-                    console.log('Token salvo no localStorage:', data.token);
+            if (response.ok && data.token) {
+                console.log('Login bem-sucedido! Salvando token...');
+                
+                // SALVAR TOKEN NO LOCALSTORAGE
+                localStorage.setItem('jwt_token', data.token);
+                console.log('Token salvo:', localStorage.getItem('jwt_token'));
+                
+                // Verificar se realmente foi salvo
+                const tokenSalvo = localStorage.getItem('jwt_token');
+                if (tokenSalvo) {
+                    console.log('✅ Confirmado: Token salvo no localStorage');
+                    showMessage('Login realizado com sucesso!', 'success');
+                    
+                    // Aguardar um pouco antes do redirecionamento
+                    setTimeout(() => {
+                        console.log('Redirecionando para o sistema...');
+                        window.location.href = '/sistema/sistema-teste.html'; // Use a página de teste primeiro
+                    }, 2000);
+                } else {
+                    console.error('❌ ERRO: Token não foi salvo no localStorage');
+                    showMessage('Erro ao salvar dados de login', 'error');
                 }
                 
-                showMessage(data.msg, 'success');
+            } else if (response.ok) {
+                console.error('Login OK mas sem token na resposta');
+                showMessage('Erro: Token não recebido do servidor', 'error');
                 
-                setTimeout(() => {
-                    // Sempre redirecionar para sistema sem parâmetros extras
-                    window.location.href = '/sistema/sistema.html';
-                }, 2000);
-
             } else {
-                showMessage(data.msg, 'error');
+                console.log('Login falhou:', data.msg);
+                showMessage(data.msg || 'Erro no login', 'error');
+                
+                // Limpar campos
                 usernameInput.value = '';
                 passwordInput.value = '';
 
+                // Animação de erro
                 const inputs = document.querySelectorAll('input');
                 inputs.forEach(input => {
                     input.style.animation = 'shake 0.5s ease-in-out';
@@ -57,16 +91,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         input.style.animation = '';
                     }, 500);
                 });
-
-                loginBtn.classList.remove('loading');
-                loginBtn.querySelector('span').style.opacity = '1';
-                return;
             }
 
-        } catch (err) {
-            console.error('Erro de conexão:', err);
-            showMessage("Erro de conexão com o servidor", 'error');
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            showMessage('Erro de conexão com o servidor', 'error');
         } finally {
+            // Remover loading
             setTimeout(() => {
                 loginBtn.classList.remove('loading');
                 loginBtn.querySelector('span').style.opacity = '1';
@@ -75,23 +106,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Elementos do DOM
-const togglePassword = document.getElementById('togglePassword');
-const passwordInput = document.getElementById('password');
-const messageContainer = document.getElementById('messageContainer');
-const loginBtn = document.querySelector('.login-btn');
-
-// Alternância de visibilidade da senha
-togglePassword.addEventListener('click', function() {
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
+// Toggle senha
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
     
-    this.classList.toggle('fa-eye');
-    this.classList.toggle('fa-eye-slash');
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    }
 });
 
 // Função para mostrar mensagens
 function showMessage(message, type = 'error') {
+    console.log(`Mensagem (${type}):`, message);
+    
+    const messageContainer = document.getElementById('messageContainer');
+    if (!messageContainer) {
+        console.error('Container de mensagem não encontrado');
+        return;
+    }
+    
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     messageDiv.textContent = message;
@@ -99,12 +139,10 @@ function showMessage(message, type = 'error') {
     messageContainer.innerHTML = '';
     messageContainer.appendChild(messageDiv);
     
-    // Mostrar mensagem com animação
     setTimeout(() => {
         messageDiv.classList.add('show');
     }, 100);
     
-    // Remover mensagem após alguns segundos
     setTimeout(() => {
         messageDiv.classList.remove('show');
         setTimeout(() => {
@@ -115,7 +153,7 @@ function showMessage(message, type = 'error') {
     }, 4000);
 }
 
-// Animações de entrada da página
+// Animações da página
 document.addEventListener('DOMContentLoaded', function() {
     // Efeito parallax nas partículas
     document.addEventListener('mousemove', function(e) {
@@ -131,16 +169,19 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.transform = `translate(${xMove}px, ${yMove}px)`;
         });
     });
+
+    // Animações nos inputs
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.form-group').style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.closest('.form-group').style.transform = 'scale(1)';
+        });
+    });
 });
 
-// Animações nos inputs
-const inputs = document.querySelectorAll('input');
-inputs.forEach(input => {
-    input.addEventListener('focus', function() {
-        this.closest('.form-group').style.transform = 'scale(1.02)';
-    });
-    
-    input.addEventListener('blur', function() {
-        this.closest('.form-group').style.transform = 'scale(1)';
-    });
-});
+// Debug inicial
+console.log('Estado inicial do localStorage:', localStorage.getItem('jwt_token'));
