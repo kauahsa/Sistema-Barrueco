@@ -22,15 +22,22 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ['https://barruecoadvogados.com.br', 'http://localhost:3000'],
-  credentials: true
+  origin: [
+    'https://barruecoadvogados.com.br', 
+    'http://localhost:3000',
+    'https://sistema-barrueco.onrender.com' // ou seu domínio de produção
+  ],
+  credentials: true,
+  exposedHeaders: ['set-cookie']
 }));
 
 // Função de verificação de token
 function checkToken(req, res, next) {
     const token = req.cookies.token;
+    console.log('Token recebido:', token); // Adicione este log
 
     if (!token) {
+        console.log('Nenhum token encontrado');
         return req.accepts('html')
             ? res.redirect('/login')
             : res.status(401).json({ msg: 'Acesso Bloqueado!' });
@@ -104,13 +111,19 @@ app.post('/auth/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: admin._id }, process.env.SECRET);
-    res.cookie('token', token, {
+   res.cookie('token', token, {
     httpOnly: true,
-    secure: true, // ✅ agora aceita só HTTPS
-    sameSite: 'None', // ✅ permite enviar cookie em requests cross-site
+    secure: process.env.NODE_ENV === 'production', // só HTTPS em produção
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: 1000 * 60 * 60 * 3
 });
 
+    console.log('Admin encontrado:', admin);
+    console.log('Token gerado:', token);
+    
+    res.cookie('token', token, { /* configurações */ });
+    console.log('Cookie definido');
+    
     res.json({ msg: "Autenticação realizada com sucesso" });
 });
 

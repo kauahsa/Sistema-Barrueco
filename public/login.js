@@ -16,16 +16,37 @@ document.addEventListener('DOMContentLoaded', function () {
         loginBtn.querySelector('span').style.opacity = '0';
 
         try {
-            const response = await fetch('https://sistema-barrueco.onrender.com/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify({ username, password }) 
-            });
+    const response = await fetch('https://sistema-barrueco.onrender.com/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }) 
+    });
 
-            const data = await response.json();
+    console.log('Response status:', response.status);
+    console.log('Response headers:', [...response.headers.entries()]);
+    
+    const data = await response.json();
+    console.log('Response data:', data);
+
+
+    if (response.ok) {
+    // Verifique se o cookie foi recebido
+    const cookies = document.cookie;
+    console.log('Cookies:', cookies);
+    
+    if (!cookies.includes('token')) {
+        showMessage("Cookie não recebido. Verifique as configurações do servidor.", 'error');
+        return;
+    }
+    
+    showMessage(data.msg, 'success');
+    setTimeout(() => {
+        window.location.href = '/sistema/sistema.html';
+    }, 2000);
+}
 
             if (!response.ok) {
                 showMessage(data.msg, 'error');
@@ -48,8 +69,9 @@ document.addEventListener('DOMContentLoaded', function () {
             showMessage(data.msg, 'success');
 
             setTimeout(() => {
-                window.location.href = '/admin';
-            }, 2000);
+    // Em vez de redirecionar para /admin, vá diretamente para a página do sistema
+    window.location.href = '/sistema/sistema.html';
+}, 2000)
         } catch (err) {
             showMessage("Erro de conexão com o servidor", 'error');
         } finally {
