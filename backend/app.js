@@ -47,7 +47,7 @@ function checkToken(req, res, next) {
 }
 
 // Servir arquivos estáticos
-app.use('/sistema', checkToken, express.static(path.join(__dirname, '..', 'public', 'paginas')));
+app.use('/sistema', checkToken, express.static(path.join(__dirname, '..', 'public', 'paginas', 'sistema')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
@@ -81,8 +81,9 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'in
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'login.html')));
 app.get('/api', checkToken, (req, res) => res.json({ msg: "Olá, bem vindo a API" }));
 app.get('/admin', checkToken, (req, res) => {
-  return res.redirect('/paginas/sistema/sistema.html');
+  return res.redirect('/sistema/sistema.html');
 });
+
 
 // Login
 app.post('/auth/login', async (req, res) => {
