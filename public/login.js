@@ -32,24 +32,17 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Response data:', data);
 
             if (response.ok) {
-                // Salvar token no localStorage como fallback
+                // SEMPRE salvar token no localStorage (funciona cross-domain)
                 if (data.token) {
                     localStorage.setItem('jwt_token', data.token);
+                    console.log('Token salvo no localStorage:', data.token);
                 }
-                
-                // Verificar se cookie foi recebido
-                const cookies = document.cookie;
-                console.log('Cookies:', cookies);
                 
                 showMessage(data.msg, 'success');
                 
                 setTimeout(() => {
-                    // Redirecionar com parâmetro indicando uso do localStorage
-                    if (!cookies.includes('token')) {
-                        window.location.href = '/sistema/sistema.html?auth=local';
-                    } else {
-                        window.location.href = '/sistema/sistema.html';
-                    }
+                    // Sempre redirecionar para sistema sem parâmetros extras
+                    window.location.href = '/sistema/sistema.html';
                 }, 2000);
 
             } else {
