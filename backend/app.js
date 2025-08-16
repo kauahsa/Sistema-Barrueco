@@ -112,14 +112,18 @@ app.post('/auth/login', async (req, res) => {
 
     const token = jwt.sign({ id: admin._id }, process.env.SECRET);
    res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'None',
-        domain: '.barruecoadvogados.com.br', // Adicione isto
-        path: '/', // Importante
-        maxAge: 1000 * 60 * 60 * 3
-    });
+  httpOnly: true,
+  secure: true, // Para produção (HTTPS)
+  sameSite: 'None', // Crucial para cross-site
+  domain: '.barruecoadvogados.com.br', // Note o ponto inicial
+  path: '/', // Disponível em todas as rotas
+  maxAge: 1000 * 60 * 60 * 3, // 3 horas
+  partitioned: true // Novo atributo para cookies em contexto cross-site
+});
+
       res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Expose-Headers', 'Set-Cookie');
+res.header('Cache-Control', 'no-store');
 
     console.log('Admin encontrado:', admin);
     console.log('Token gerado:', token);
