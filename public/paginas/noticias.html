@@ -8,9 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="shortcut icon" href="../imagens/favicon.ico" type="image/x-icon">
   
-  
   <style>
-    
     :root {
       --primary: #695643;
       --primary-dark: #4a3c2e;
@@ -54,30 +52,31 @@
       position: relative;
       overflow: hidden;
     }
+
     #zap {
-    text-decoration: none;
-    position: fixed;
-    z-index: 100;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    background-color: #25D366;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition: all ease 0.2s;
-  }
-  
-  #zap:hover {
-    width: 65px;
-    height: 65px;
-    transition: all ease 0.2s;
-  }
+      text-decoration: none;
+      position: fixed;
+      z-index: 100;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #25D366;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all ease 0.2s;
+    }
+    
+    #zap:hover {
+      width: 65px;
+      height: 65px;
+      transition: all ease 0.2s;
+    }
 
     .header::before {
       content: '';
@@ -130,32 +129,33 @@
       align-items: center;
       padding: 3rem 0;
     }
-    #voltar {
-  text-decoration: none;
-  position: fixed;
-  z-index: 100;
-  bottom: 90px;
-  right: 20px;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  box-shadow: 0 4px 15px var(--shadow-medium);
-  transition: all ease 0.3s;
-}
 
-#voltar:hover {
-  width: 65px;
-  height: 65px;
-  background: linear-gradient(135deg, var(--secondary), var(--accent));
-  box-shadow: 0 6px 20px var(--shadow-dark);
-  transform: translateY(-2px);
-}
+    #voltar {
+      text-decoration: none;
+      position: fixed;
+      z-index: 100;
+      bottom: 90px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      box-shadow: 0 4px 15px var(--shadow-medium);
+      transition: all ease 0.3s;
+    }
+
+    #voltar:hover {
+      width: 65px;
+      height: 65px;
+      background: linear-gradient(135deg, var(--secondary), var(--accent));
+      box-shadow: 0 6px 20px var(--shadow-dark);
+      transform: translateY(-2px);
+    }
 
     .spinner {
       width: 50px;
@@ -802,7 +802,6 @@
       <button class="filter-btn" onclick="filtrarNoticias('recentes')">
         <i class="fas fa-clock"></i> Recentes
       </button>
-
     </div>
 
     <!-- Container de notícias -->
@@ -825,13 +824,12 @@
     </div>
   </div>
 
-  
-<a href="../index.html" id="voltar">
-  <i class="fas fa-home"></i>
-</a>
+  <a href="../index.html" id="voltar">
+    <i class="fas fa-home"></i>
+  </a>
   <a href="https://wa.me/5514981111872" id="zap" style="text-decoration: none;" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-      </a>
+    <i class="fab fa-whatsapp"></i>
+  </a>
 
   <!-- Footer -->
   <footer class="footer">
@@ -880,10 +878,9 @@
           throw new Error(`Erro HTTP: ${res.status}`);
         }
         
-        let noticias = await res.json();   // <= use let aqui
-noticiasOriginais = noticias;
-
-noticias = noticias.slice(0, 6);
+        let noticias = await res.json();
+        noticiasOriginais = noticias;
+        noticias = noticias.slice(0, 6);
         
         if (noticias.length === 0) {
           mostrarErro('Nenhuma notícia encontrada no momento');
@@ -984,7 +981,7 @@ noticias = noticias.slice(0, 6);
       renderizarNoticias(noticiasFiltradas);
     }
 
-    // Função para carregar artigos
+    // Função para carregar artigos - VERSÃO CORRIGIDA
     async function carregarArtigos() {
       try {
         // Mostrar loading
@@ -1028,16 +1025,29 @@ noticias = noticias.slice(0, 6);
           const isDestaque = index === 0; // Primeiro artigo sempre em destaque
           const classeDestaque = isDestaque ? 'destaque' : '';
 
-          container.innerHTML += `
-            <a style="text-decoration:none;" href="${a.pdf}">
-              <div class="artigo ${classeDestaque}" style="animation-delay: ${index * 0.15}s">
-                <h3>${a.titulo}</h3>
-                <p class="data">${dataFormatada}</p>
-                <p class="conteudo">${a.conteudo}</p>
-                <p class="autor"><strong>Autor:</strong> ${a.autor}</p>
-              </div>
-            </a>
+          // Criar elemento de artigo
+          const artigoElement = document.createElement('div');
+          artigoElement.className = `artigo ${classeDestaque}`;
+          artigoElement.style.animationDelay = `${index * 0.15}s`;
+          artigoElement.innerHTML = `
+            <h3>${a.titulo}</h3>
+            <p class="data">${dataFormatada}</p>
+            <p class="conteudo">${a.conteudo}</p>
+            <p class="autor"><strong>Autor:</strong> ${a.autor}</p>
           `;
+
+          // Criar link que envolve todo o artigo
+          const linkElement = document.createElement('a');
+          linkElement.href = `artigo.html?id=${a._id}`; // Usando _id do MongoDB
+          linkElement.style.textDecoration = 'none';
+          linkElement.style.color = 'inherit';
+          linkElement.style.display = 'block';
+          
+          // Adicionar o artigo dentro do link
+          linkElement.appendChild(artigoElement);
+          
+          // Adicionar ao container
+          container.appendChild(linkElement);
         });
 
       } catch (error) {
@@ -1059,7 +1069,7 @@ noticias = noticias.slice(0, 6);
       }
     }
 
-    // Carregar notícias ao carregar a página
+    // Carregar notícias e artigos ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
       carregarNoticias();
       carregarArtigos();
@@ -1071,8 +1081,6 @@ noticias = noticias.slice(0, 6);
         carregarNoticias();
       }
     }, 5 * 60 * 1000);
-
-    // Carregar artigos quando a página carregar
   </script>
-  </body>
+</body>
 </html>
