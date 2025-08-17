@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Arte de Cultivar Sabedoria</title>
+    <style>
+        :root {
+            --primary: #695643;
+            --primary-dark: #4a3c2e;
+            --primary-light: #857865;
+            --secondary: #8b7355;
+            --accent: #a68b5b;
+            --tertiary: #5d4e3a;
+            --light: #faf9f7;
+            --light-gray: #f2f0ec;
+            --medium-gray: #d4d0c8;
+            --dark: #2d251a;
+            --white: #ffffff;
+            --text-light: #6b635a;
+            --text-dark: #3d3529;
+            --shadow-light: rgba(105, 86, 67, 0.1);
+            --shadow-medium: rgba(105, 86, 67, 0.2);
+            --shadow-dark: rgba(105, 86, 67, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, var(--light) 0%, var(--light-gray) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .article {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 60px 50px;
+            box-shadow: 
+                0 10px 40px var(--shadow-light),
+                0 4px 20px var(--shadow-medium);
+            border: 1px solid var(--medium-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid var(--light-gray);
+            position: relative;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 4px var(--shadow-light);
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-item::before {
+            content: '•';
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .meta-item:first-child::before {
+            display: none;
+        }
+
+        .author {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .date {
+            color: var(--primary);
+        }
+
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+        }
+
+        .article-content p {
+            margin-bottom: 24px;
+            text-align: justify;
+            text-indent: 2rem;
+        }
+
+        .article-content p:first-child {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            font-weight: 500;
+            text-indent: 0;
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .article-content p:first-child::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent) 0%, var(--primary) 100%);
+            border-radius: 2px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .article {
+                padding: 40px 30px;
+                border-radius: 12px;
+            }
+
+            .article-title {
+                font-size: 2rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .meta-item::before {
+                display: none;
+            }
+
+            .article-content {
+                font-size: 1rem;
+            }
+
+            .article-content p:first-child {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .article {
+                padding: 30px 20px;
+            }
+
+            .article-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+     <header style="background-color: #695643;">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">
+                   <a href="../index.html#inicio" style="text-decoration:none;"> <img src="../imagens/logo.png" alt="Barrueco Advogados Logo"></a>
+                    <h1></h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="../index.html#inicio" class="menu-link">Início</a></li>
+                        <li><a href="sobre.html" class="menu-link">Sobre</a></li>
+                        <li><a href="atuacao.html" class="menu-link">Atuação</a></li>
+                        <li><a href="equipe.html" class="menu-link active">Equipe</a></li>
+                        <li><a href="noticias.html" class="menu-link">Notícias</a></li>
+                        <li><a href="contato.html" class="menu-link">Contato</a></li>
+                        <li><a href="https://portaldeservicos.pdpj.jus.br/consulta"><button style="margin-left: 90px;" id="btn-header">Acompanhe seu processo</button></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="mobile-menu">
+            <div class="mobile-logo">
+                <a href="../index.html#inicio" style="text-decoration:none;"><img style="padding-left: 20px; margin-top: 12px; width: 280px;" src="../imagens/logo.png"
+                    alt="Barrueco Advogados Logo"></a>
+            </div>
+            <div class="mobile-menu-icon" id="menu-toggle">
+
+                <i class="fas fa-bars"
+                    style="margin-top: 12px; padding-right: 50px; font-size: 25px; color: white;"></i>
+
+            </div>
+        </div>
+
+        <div class="mobile-menu-overlay" id="menu-overlay"></div>
+
+        <div class="mobile-menu-content" id="menu-content">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-logo">
+                    <a href="../index.html#inicio" style="text-decoration:none;"><img src="../imagens/logo.png" alt="Barrueco Advogados Logo"></a>
+                </div>
+                <div class="mobile-close-btn" id="menu-close">
+                    <span class="close-line close-line1"></span>
+                    <span class="close-line close-line2"></span>
+                </div>
+            </div>
+
+            <nav class="mobile-nav">
+                <ul class="mobile-menu-list">
+                    <li class="mobile-menu-item">
+                        <a href="../index.html#inicio" class="mobile-menu-link">
+                            <i class="fas fa-home"></i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="sobre.html" class="mobile-menu-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Sobre</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="atuacao.html" class="mobile-menu-link">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Atuação</span>
+                        </a>
+                    </li>
+                    <li class="mobile-menu-item">
+                        <a href="equipe.html" class="mobile-menu-link">
+                            <i class="fas fa-users"></i>
+                            <span>Equipe</span>
+                        </a>
+                    </li>
+            
+                    <li class="mobile-menu-item">
+                        <a href="noticias.html" class="mobile-menu-link">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Notícias</span>
+                        </a>
+                    </li>
+                    
+                    <li class="mobile-menu-item">
+                        <a href="contato.html" class="mobile-menu-link">
+                            <i class="fas fa-phone"></i>
+                            <span>Contato</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mobile-menu-footer">
+
+                <div class="mobile-social-links">
+                    <a target="_blank" href="https://www.instagram.com/barruecoadvogados/ " class="mobile-social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a target="_blank" href="https://www.linkedin.com/search/results/all/?fetchDeterministicClustersOnly=true&heroEntityKey=urn%3Ali%3Aorganization%3A65884616&keywords=barrueco%20advogados%20associados&origin=RICH_QUERY_SUGGESTION&position=0&searchId=de61023f-f77c-4255-96d4-7320a46a955d&sid=~Lj&spellCorrectionEnabled=false " class="mobile-social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a target="_blank" href="https://wa.me/5514981111872" class="mobile-social-link">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a target="_blank" href="https://www.facebook.com/Barruecoadvogados" class="mobile-social-link"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+
+
+
+       
+                
+                <div class="container secao-artigos">
+    <div id="artigos" class="artigos-container">
+      <!-- Loading inicial para artigos -->
+      <div class="artigos-loading">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+        
+        
+    
+
+    <script>
+        
+
+ function mostrarLoading() {
+      const container = document.getElementById('noticias');
+      container.innerHTML = `
+        <div class="loading-container">
+          <div class="spinner"></div>
+        </div>
+      `;
+    }
+
+    // Função para mostrar erro
+    function mostrarErro(mensagem = 'Não foi possível carregar as notícias') {
+      const container = document.getElementById('noticias');
+      container.innerHTML = `
+        <div class="error-container">
+          <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="error-title">Oops! Algo deu errado</h3>
+          <p class="error-message">${mensagem}</p>
+          <button class="retry-btn" onclick="carregarNoticias()">
+            <i class="fas fa-redo"></i> Tentar novamente
+          </button>
+        </div>
+      `;
+    }
+
+      async function carregarArtigos() {
+      try {
+        // Mostrar loading
+        const container = document.getElementById('artigos');
+        container.innerHTML = `
+          <div class="artigos-loading">
+            <div class="spinner"></div>
+          </div>
+        `;
+
+        const res = await fetch('https://sistema-barrueco.onrender.com/artigos');
+        
+        if (!res.ok) {
+          throw new Error(`Erro HTTP: ${res.status}`);
+        }
+        
+        const artigos = await res.json();
+
+        container.innerHTML = '';
+
+        if (artigos.length === 0) {
+          container.innerHTML = `
+            <div class="error-container" style="border-color: var(--accent);">
+              <div class="error-icon" style="color: var(--accent);">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <h3 class="error-title">Nenhum artigo encontrado</h3>
+              <p class="error-message">Não há artigos disponíveis no momento</p>
+            </div>
+          `;
+          return;
+        }
+
+        artigos.forEach((a, index) => {
+          const dataFormatada = new Date(a.data).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
+
+          
+
+          container.innerHTML += `
+              <article>
+                    <header>
+                        <h1 class="article-title">${a.titulo}</h1>
+                        <div class="article-meta">
+                            <span class="meta-item author"><strong>Autor:</strong> ${a.autor}</span>
+                            <span class="meta-item date">${dataFormatada}</span>
+                        </div>
+                        <div class="article-content">
+                            <p>${a.conteudo}</p>
+                        </div>
+                    </header>
+                </article>
+          `;
+        });
+
+
+
+
+
+
+
+
+      } catch (error) {
+        console.error('Erro ao carregar artigos:', error);
+        const container = document.getElementById('artigos');
+        
+        container.innerHTML = `
+          <div class="error-container">
+            <div class="error-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="error-title">Erro ao carregar artigos</h3>
+            <p class="error-message">Não foi possível carregar os artigos. Tente novamente.</p>
+            <button class="retry-btn" onclick="carregarArtigos()">
+              <i class="fas fa-redo"></i> Tentar novamente
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // Carregar notícias ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarNoticias();
+      carregarArtigos();
+    });
+    </script>
+</body>
+</html>
