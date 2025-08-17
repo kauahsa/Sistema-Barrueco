@@ -284,6 +284,37 @@
     </div>
 
     <script>
+        // Função para criar parágrafos (mover para fora para reutilizar)
+        function criarParagrafos(conteudo) {
+            if (conteudo.includes('\n')) {
+                return conteudo
+                    .split('\n')
+                    .filter(paragrafo => paragrafo.trim() !== '')
+                    .map(paragrafo => `<p>${paragrafo.trim()}</p>`)
+                    .join('');
+            }
+            
+            const sentencas = conteudo.split(/\.\s+(?=[A-ZÀ-Ü])/);
+            
+            if (sentencas.length <= 2) {
+                return `<p>${conteudo}</p>`;
+            }
+            
+            const paragrafos = [];
+            for (let i = 0; i < sentencas.length; i += 2) {
+                const sentencasDoParagrafo = sentencas.slice(i, i + 2);
+                let paragrafoText = sentencasDoParagrafo.join('. ');
+                
+                if (!paragrafoText.endsWith('.')) {
+                    paragrafoText += '.';
+                }
+                
+                paragrafos.push(`<p>${paragrafoText}</p>`);
+            }
+            
+            return paragrafos.join('');
+        }
+
         async function carregarArtigos() {
             try {
                 const container = document.getElementById('artigos');
@@ -323,42 +354,14 @@
                         year: 'numeric'
                     });
 
-                    // Função para criar parágrafos a partir do conteúdo
-                    function criarParagrafos(conteudo) {
-                        // Se o conteúdo já tem quebras de linha (\n), usar elas
-                        if (conteudo.includes('\n')) {
-                            return conteudo
-                                .split('\n')
-                                .filter(paragrafo => paragrafo.trim() !== '')
-                                .map(paragrafo => `<p>${paragrafo.trim()}</p>`)
-                                .join('');
-                        }
-                        
-                        // Se não tem quebras, dividir por pontos finais seguidos de espaço/maiúscula
-                        const sentencas = conteudo.split(/\.\s+(?=[A-ZÀ-Ü])/);
-                        
-                        if (sentencas.length <= 2) {
-                            // Conteúdo muito pequeno, manter em um parágrafo
-                            return `<p>${conteudo}</p>`;
-                        }
-                        
-                        // Agrupar sentenças em parágrafos (2-3 sentenças por parágrafo)
-                        const paragrafos = [];
-                        for (let i = 0; i < sentencas.length; i += 2) {
-                            const sentencasDoParagrafo = sentencas.slice(i, i + 2);
-                            let paragrafoText = sentencasDoParagrafo.join('. ');
-                            
-                            // Adicionar ponto final se não terminar com ponto
-                            if (!paragrafoText.endsWith('.')) {
-                                paragrafoText += '.';
-                            }
-                            
-                            paragrafos.push(`<p>${paragrafoText}</p>`);
-                        }
-                        
-                        return paragrafos.join('');
-                    }
+                    // Criar link que envolve todo o artigo
+                    const linkElement = document.createElement('a');
+                    linkElement.href = `artigo.html?id=${artigo._id || artigo.id}`;
+                    linkElement.style.textDecoration = 'none';
+                    linkElement.style.color = 'inherit';
+                    linkElement.style.display = 'block';
 
+                    // Criar elemento do artigo
                     const articleElement = document.createElement('div');
                     articleElement.className = 'article';
                     articleElement.innerHTML = `
@@ -374,7 +377,23 @@
                         </div>
                     `;
                     
-                    container.appendChild(articleElement);
+                    // Adicionar efeito hover
+                    linkElement.addEventListener('mouseenter', () => {
+                        articleElement.style.transform = 'translateY(-4px)';
+                        articleElement.style.boxShadow = '0 15px 50px var(--shadow-medium)';
+                        articleElement.style.transition = 'all 0.3s ease';
+                    });
+                    
+                    linkElement.addEventListener('mouseleave', () => {
+                        articleElement.style.transform = 'translateY(0)';
+                        articleElement.style.boxShadow = '0 10px 40px var(--shadow-light), 0 4px 20px var(--shadow-medium)';
+                    });
+
+                    // Adicionar o artigo dentro do link
+                    linkElement.appendChild(articleElement);
+                    
+                    // Adicionar ao container
+                    container.appendChild(linkElement);
                 });
 
             } catch (error) {
