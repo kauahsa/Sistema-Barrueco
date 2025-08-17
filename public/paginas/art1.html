@@ -323,6 +323,42 @@
                         year: 'numeric'
                     });
 
+                    // Função para criar parágrafos a partir do conteúdo
+                    function criarParagrafos(conteudo) {
+                        // Se o conteúdo já tem quebras de linha (\n), usar elas
+                        if (conteudo.includes('\n')) {
+                            return conteudo
+                                .split('\n')
+                                .filter(paragrafo => paragrafo.trim() !== '')
+                                .map(paragrafo => `<p>${paragrafo.trim()}</p>`)
+                                .join('');
+                        }
+                        
+                        // Se não tem quebras, dividir por pontos finais seguidos de espaço/maiúscula
+                        const sentencas = conteudo.split(/\.\s+(?=[A-ZÀ-Ü])/);
+                        
+                        if (sentencas.length <= 2) {
+                            // Conteúdo muito pequeno, manter em um parágrafo
+                            return `<p>${conteudo}</p>`;
+                        }
+                        
+                        // Agrupar sentenças em parágrafos (2-3 sentenças por parágrafo)
+                        const paragrafos = [];
+                        for (let i = 0; i < sentencas.length; i += 2) {
+                            const sentencasDoParagrafo = sentencas.slice(i, i + 2);
+                            let paragrafoText = sentencasDoParagrafo.join('. ');
+                            
+                            // Adicionar ponto final se não terminar com ponto
+                            if (!paragrafoText.endsWith('.')) {
+                                paragrafoText += '.';
+                            }
+                            
+                            paragrafos.push(`<p>${paragrafoText}</p>`);
+                        }
+                        
+                        return paragrafos.join('');
+                    }
+
                     const articleElement = document.createElement('div');
                     articleElement.className = 'article';
                     articleElement.innerHTML = `
@@ -334,7 +370,7 @@
                             </div>
                         </div>
                         <div class="article-content">
-                            <p>${artigo.conteudo}</p>
+                            ${criarParagrafos(artigo.conteudo)}
                         </div>
                     `;
                     
