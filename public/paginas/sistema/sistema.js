@@ -165,8 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     // Função de validação
     function validateForm() {
         const errors = [];
@@ -182,9 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (!dataInput?.value) {
             errors.push('Data é obrigatória');
-=======
-=======
->>>>>>> parent of 9c59aca (Update sistema.js)
+
     // Função para formatar tamanho de arquivo
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
@@ -261,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             showMessage('Apenas arquivos PDF são permitidos!', 'error');
         }
-    });
+    });}
 
     // Event listener do formulário
     articleForm.addEventListener('submit', async (event) => {
@@ -277,14 +273,11 @@ document.addEventListener('DOMContentLoaded', function () {
         // Adicionar PDF se selecionado
         if (pdfInput.files[0]) {
             formData.append('pdf', pdfInput.files[0]);
-<<<<<<< HEAD
->>>>>>> parent of 9c59aca (Update sistema.js)
-=======
->>>>>>> parent of 9c59aca (Update sistema.js)
+
         }
 
         return errors;
-    }
+    });
 
     // Função para fazer a requisição
     async function submitForm(formData, retryCount = 0) {
@@ -409,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const { response, result: data } = result;
                 
-<<<<<<< HEAD
+
                 setTimeout(() => {
                     hideLoading();
                     
@@ -419,17 +412,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         shakeInputs();
                         return;
                     }
-=======
+
                 // Limpar campos após sucesso
                 tituloInput.value = '';
                 conteudoInput.value = '';
                 autorInput.value = '';
                 dataInput.value = '';
                 removePdf(); // Limpar PDF também
-<<<<<<< HEAD
->>>>>>> parent of 9c59aca (Update sistema.js)
-=======
->>>>>>> parent of 9c59aca (Update sistema.js)
+
 
                     // Sucesso
                     showMessage(data.msg || 'Artigo publicado com sucesso!', 'success');
@@ -474,6 +464,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
+    }
     console.log('Script carregado com sucesso');
 });
