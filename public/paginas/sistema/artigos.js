@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // URL base da sua API para facilitar a manutenção
-    const API_BASE_URL = 'https://sistema-barrueco.onrender.com';
 
     /**
      * Função centralizada para fazer requisições autenticadas.
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function carregarArtigos() {
         showLoadingState();
         try {
-            const response = await authenticatedFetch(`${API_BASE_URL}/artigos`);
+            const response = await authenticatedFetch(`/artigos`);
             const artigos = await response.json();
 
             if (!response.ok) {
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', async (e) => {
                 const artigoId = e.currentTarget.dataset.id;
                 try {
-                    const response = await authenticatedFetch(`${API_BASE_URL}/artigos/${artigoId}`);
+                    const response = await authenticatedFetch(`/artigos/${artigoId}`);
                     const artigo = await response.json();
                     if (!response.ok) throw new Error(artigo.msg);
                     abrirFormularioEdicao(artigo);
@@ -149,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function deleteArticle(artigoId) {
         try {
-            const response = await authenticatedFetch(`${API_BASE_URL}/api/artigos/${artigoId}`, {
+            const response = await authenticatedFetch(`/api/artigos/${artigoId}`, {
                 method: 'DELETE',
             });
             
@@ -225,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                const response = await authenticatedFetch(`${API_BASE_URL}/api/artigos/${artigo._id}`, {
+                const response = await authenticatedFetch(`/api/artigos/${artigo._id}`, {
                     method: 'PUT',
                     body: JSON.stringify(dadosAtualizados),
                 });
