@@ -1,5 +1,3 @@
-
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -8,8 +6,6 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const Parser = require('rss-parser');
 const cors = require('cors');
-const multer = require('multer');
-const fs = require('fs');
 
 const admins = require('./models/admins');
 const Artigo = require('./models/artigo');
@@ -58,32 +54,6 @@ function checkToken(req, res, next) {
 // Servir arquivos estáticos
 app.use('/sistema', checkToken, express.static(path.join(__dirname, '..', 'public', 'paginas', 'sistema')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
-// Configuração do multer
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '..', 'uploads');
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({
-    storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        file.mimetype === 'application/pdf'
-            ? cb(null, true)
-            : cb(new Error('Apenas arquivos PDF são permitidos!'));
-    }
-});
 
 // Rotas simples
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'index.html')));
@@ -132,7 +102,7 @@ app.post('/auth/login', async (req, res) => {
   
 
 // Publicar artigo
-app.post('/postArt', checkToken, upload.single('pdf'), async (req, res) => {
+app.post('/postArt', checkToken, async (req, res) => {
     const { titulo, conteudo, autor, data } = req.body;
 
     if (!titulo) {
@@ -153,8 +123,7 @@ app.post('/postArt', checkToken, upload.single('pdf'), async (req, res) => {
             titulo,
             conteudo,
             autor,
-            data,
-            pdf: req.file ? `/uploads/${req.file.filename}` : null
+            data
         });
 
         await novoArtigo.save();
@@ -170,11 +139,6 @@ app.delete('/artigos/:id', checkToken, async (req, res) => {
         const artigo = await Artigo.findById(req.params.id);
         if (!artigo) return res.status(404).json({ msg: 'Artigo não encontrado' });
 
-        if (artigo.pdf) {
-            const pdfPath = path.join(__dirname, '..', artigo.pdf);
-            if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-        }
-
         await Artigo.findByIdAndDelete(req.params.id);
         res.json({ msg: 'Artigo deletado com sucesso!' });
     } catch {
@@ -183,19 +147,12 @@ app.delete('/artigos/:id', checkToken, async (req, res) => {
 });
 
 // Atualizar artigo
-app.put('/artigos/:id', checkToken, upload.single('pdf'), async (req, res) => {
+app.put('/artigos/:id', checkToken, async (req, res) => {
     try {
         const artigo = await Artigo.findById(req.params.id);
         if (!artigo) return res.status(404).json({ msg: 'Artigo não encontrado' });
 
         const updateData = { ...req.body };
-        if (req.file) {
-            if (artigo.pdf) {
-                const oldPath = path.join(__dirname, '..', artigo.pdf);
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-            }
-            updateData.pdf = `/uploads/${req.file.filename}`;
-        }
 
         const updated = await Artigo.findByIdAndUpdate(req.params.id, updateData, { new: true });
         res.json({ msg: 'Artigo atualizado com sucesso', artigo: updated });

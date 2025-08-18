@@ -143,7 +143,6 @@ async function carregarArtigos() {
             const artigoCard = document.createElement('div');
             artigoCard.className = 'article-card';
             artigoCard.dataset.status = artigo.status || 'draft';
-            artigoCard.dataset.pdf = artigo.pdf || '';
             artigoCard.dataset.date = artigo.data || new Date().toISOString();
             artigoCard.dataset.id = artigo._id;
 
