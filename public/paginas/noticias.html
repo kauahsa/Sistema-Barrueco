@@ -872,7 +872,7 @@
       try {
         mostrarLoading();
         
-        const res = await fetch('https://sistema-barrueco.onrender.com/noticias');
+        const res = await fetch('https://sistema-barrueco.onrender.com/home/noticias');
         
         if (!res.ok) {
           throw new Error(`Erro HTTP: ${res.status}`);
@@ -992,7 +992,7 @@
             </div>
         `;
 
-        const res = await fetch('https://sistema-barrueco.onrender.com/artigos');
+        const res = await fetch('https://sistema-barrueco.onrender.com/home/artigos');
         
         if (!res.ok) {
             throw new Error(`Erro HTTP: ${res.status}`);

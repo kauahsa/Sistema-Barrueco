@@ -75,7 +75,7 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'in
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'login.html')));
 const publicPages = {
     '/sobre': 'paginas/sobre.html', '/atuacao': 'paginas/atuacao.html', '/equipe': 'paginas/equipe.html',
-    '/noticias': 'paginas/noticias.html', '/artigos': 'paginas/artigo.html', '/contato': 'paginas/contato.html',
+    '/noticias': 'paginas/noticias.html', '/artigos': 'paginas/noticias.html#artigos', '/contato': 'paginas/contato.html',
     '/andre_andrade': 'paginas/andre_andrade.html', '/carolina': 'paginas/carolina.html', '/zacarias': 'paginas/zacarias.html',
 };
 for (const [route, file] of Object.entries(publicPages)) {
