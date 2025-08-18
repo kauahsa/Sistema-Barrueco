@@ -1,453 +1,342 @@
-// Atualiza barra de ações em lote
-function updateBulkActions() {
-    const checkboxes = document.querySelectorAll('.article-checkbox');
-    const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-    const bulkActions = document.getElementById('bulkActions');
-    const selectAll = document.getElementById('selectAll');
+document.addEventListener('DOMContentLoaded', () => {
+    // URL base da sua API para facilitar a manutenção
+    const API_BASE_URL = 'https://sistema-barrueco.onrender.com';
 
-    if (selectedCount > 0) {
-        bulkActions.classList.add('show');
-        bulkActions.querySelector('span').innerHTML = `<strong>${selectedCount}</strong> artigos selecionados`;
-    } else {
-        bulkActions.classList.remove('show');
-    }
-
-    // Atualiza "selecionar todos" se existir
-    if (selectAll) {
-        if (selectedCount === checkboxes.length) {
-            selectAll.checked = true;
-            selectAll.indeterminate = false;
-        } else if (selectedCount > 0) {
-            selectAll.indeterminate = true;
-        } else {
-            selectAll.checked = false;
-            selectAll.indeterminate = false;
-        }
-    }
-}
-
-// Selecionar/deselecionar todos
-const selectAllElement = document.getElementById('selectAll');
-if (selectAllElement) {
-    selectAllElement.addEventListener('change', function () {
-        const checkboxes = document.querySelectorAll('.article-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
-        updateBulkActions();
-    });
-}
-
-// Limpar filtros
-function clearFilters() {
-    document.getElementById('searchInput').value = '';
-    filterArticles();
-}
-
-// Filtrar artigos por título
-function filterArticles() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const articles = document.querySelectorAll('.article-card');
-
-    articles.forEach(article => {
-        const title = article.querySelector('.article-title').textContent.toLowerCase();
-        article.style.display = title.includes(searchTerm) ? 'block' : 'none';
-    });
-}
-
-document.getElementById('searchInput').addEventListener('input', filterArticles);
-
-// Ordenar artigos
-document.getElementById('sortFilter').addEventListener('change', function () {
-    const articlesGrid = document.getElementById('articlesGrid');
-    const articles = Array.from(articlesGrid.children);
-    const sortValue = this.value;
-
-    articles.sort((a, b) => {
-        switch (sortValue) {
-            case 'date-desc':
-                return new Date(b.dataset.date) - new Date(a.dataset.date);
-            case 'date-asc':
-                return new Date(a.dataset.date) - new Date(b.dataset.date);
-            case 'title-asc':
-                return a.querySelector('.article-title').textContent.localeCompare(
-                    b.querySelector('.article-title').textContent
-                );
-            case 'title-desc':
-                return b.querySelector('.article-title').textContent.localeCompare(
-                    a.querySelector('.article-title').textContent
-                );
-            default:
-                return 0;
-        }
-    });
-
-    articles.forEach(article => articlesGrid.appendChild(article));
-});
-
-// Carregar artigos do banco e montar HTML
-async function carregarArtigos() {
-    try {
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.className = 'loading-indicator';
-        loadingIndicator.innerHTML = 'Carregando artigos...';
-        const container = document.getElementById('articlesGrid');
-        container.innerHTML = '';
-        container.appendChild(loadingIndicator);
-
-        // Configuração especial para Safari
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        const fetchOptions = {
+    /**
+     * Função centralizada para fazer requisições autenticadas.
+     * Garante que o cookie de autenticação seja sempre enviado e trata
+     * respostas de erro (401 - Não Autorizado) de forma padronizada.
+     */
+    async function authenticatedFetch(url, options = {}) {
+        const defaultOptions = {
+            // ESSENCIAL: Envia o cookie de autenticação com a requisição
             credentials: 'include',
+            // devolver os cookies
             headers: {
-                'Accept': 'application/json'
-            }
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
         };
 
-        if (isSafari) {
-            fetchOptions.headers['X-Requested-With'] = 'XMLHttpRequest';
-        }
+        const finalOptions = { ...defaultOptions, ...options };
 
-        const resp = await fetch('https://sistema-barrueco.onrender.com/artigos', fetchOptions);
-        
-        // Verificar se a resposta é JSON
-        const contentType = resp.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-            const errorText = await resp.text();
-            throw new Error(isSafari ? 
-                'O Safari bloqueou a requisição. Tente desativar a Prevenção Contra Rastreamento nas configurações.' : 
-                'Resposta inválida do servidor');
-        }
-        
-        if (!resp.ok) {
-            const errorData = await resp.json();
-            throw new Error(errorData.message || `Erro ${resp.status} ao buscar artigos`);
-        }
-        
-        const artigos = await resp.json();
+        try {
+            const response = await fetch(url, finalOptions);
 
-        container.innerHTML = '';
+            // Se o token for inválido ou expirar, o backend pode redirecionar.
+            // Se a resposta não for JSON, é um forte sinal de que a autenticação falhou.
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                // Redireciona para a página de login, pois a sessão provavelmente expirou.
+                window.location.href = '/login'; 
+                // Lança um erro para interromper a execução do código que chamou a função.
+                throw new Error('Sessão expirada. Redirecionando para o login.');
+            }
+
+            return response;
+
+        } catch (error) {
+            console.error('Erro na requisição autenticada:', error);
+            // Propaga o erro para que a função que chamou possa tratá-lo.
+            throw error;
+        }
+    }
+
+    // --- LÓGICA PRINCIPAL DA PÁGINA ---
+
+    const articlesGrid = document.getElementById('articlesGrid');
+
+    /**
+     * Carrega os artigos da API e os renderiza na tela.
+     */
+    async function carregarArtigos() {
+        showLoadingState();
+        try {
+            const response = await authenticatedFetch(`${API_BASE_URL}/artigos`);
+            const artigos = await response.json();
+
+            if (!response.ok) {
+                throw new Error(artigos.msg || 'Falha ao carregar artigos');
+            }
+
+            renderArtigos(artigos);
+
+        } catch (err) {
+            console.error('Erro ao carregar artigos:', err);
+            // A verificação de autenticação já redireciona, aqui tratamos outros erros de rede/servidor.
+            if (!err.message.includes('Sessão expirada')) {
+                 renderErrorState(err.message);
+            }
+        }
+    }
+
+    /**
+     * Renderiza os cartões de artigo na grade.
+     */
+    function renderArtigos(artigos) {
+        articlesGrid.innerHTML = ''; // Limpa a grade
 
         if (artigos.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📄</div>
-                    <h3 class="empty-title">Nenhum artigo encontrado</h3>
-                    <p class="empty-description">Crie seu primeiro artigo clicando no botão "Novo Artigo"</p>
-                </div>
-            `;
+            renderEmptyState();
             return;
         }
 
         artigos.forEach(artigo => {
             const artigoCard = document.createElement('div');
             artigoCard.className = 'article-card';
-            artigoCard.dataset.status = artigo.status || 'draft';
-            artigoCard.dataset.date = artigo.data || new Date().toISOString();
             artigoCard.dataset.id = artigo._id;
+            artigoCard.dataset.date = artigo.data;
 
             artigoCard.innerHTML = `
                 <div class="article-header">
                     <div class="article-checkbox-container">
-                        <input type="checkbox" class="article-checkbox">
+                        <input type="checkbox" class="article-checkbox" data-id="${artigo._id}">
                     </div>
-                    <div class="article-image">📄</div>
                     <div class="article-content">
-                        <h3 class="article-title">${escapeHtml(artigo.titulo || 'Sem título')}</h3>
+                        <h3 class="article-title">${escapeHtml(artigo.titulo)}</h3>
                         <p class="article-excerpt">${escapeHtml((artigo.conteudo || '').substring(0, 100))}${artigo.conteudo?.length > 100 ? '...' : ''}</p>
                         <div class="article-meta">
-                            <span class="meta-item">📅 ${artigo.data ? new Date(artigo.data).toLocaleDateString('pt-BR') : 'Sem data'}</span>
-                            <span class="meta-item">👤 ${escapeHtml(artigo.autor || 'Anônimo')}</span>
+                            <span class="meta-item">📅 ${new Date(artigo.data).toLocaleDateString('pt-BR')}</span>
+                            <span class="meta-item">👤 ${escapeHtml(artigo.autor)}</span>
                         </div>
                     </div>
                 </div>
                 <div class="article-actions">
-                    <div class="action-buttons">
-                        <button class="btn btn-small btn-secondary edit-btn" data-id="${artigo._id}">✏️ Editar</button>
-                        <button class="btn btn-small btn-danger delete-btn" data-id="${artigo._id}">🗑️ Apagar</button>
-                    </div>
+                    <button class="btn btn-small btn-secondary edit-btn" data-id="${artigo._id}">✏️ Editar</button>
+                    <button class="btn btn-small btn-danger delete-btn" data-id="${artigo._id}">🗑️ Apagar</button>
                 </div>
             `;
-
-            container.appendChild(artigoCard);
+            articlesGrid.appendChild(artigoCard);
         });
 
-        // Atualiza eventos dos botões após criar os elementos
         attachEventListeners();
-
-    } catch (err) {
-        console.error('Erro ao carregar artigos:', err);
-        const container = document.getElementById('articlesGrid');
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">⚠️</div>
-                <h3 class="empty-title">Erro ao carregar artigos</h3>
-                <p class="empty-description">${escapeHtml(err.message)}</p>
-                <button onclick="carregarArtigos()" class="btn btn-small btn-primary">Tentar novamente</button>
-            </div>
-        `;
-    }
-}
-
-// Função para anexar eventos aos botões
-function attachEventListeners() {
-    // Eventos para botões de exclusão
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', handleDeleteArticle);
-    });
-
-    // Eventos para botões de edição
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', handleEditArticle);
-    });
-
-    // Eventos para checkboxes
-    document.querySelectorAll('.article-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', updateBulkActions);
-    });
-}
-
-// Funções auxiliares para manipulação de eventos
-function handleDeleteArticle(e) {
-    const btn = e.currentTarget;
-    const artigoId = btn.getAttribute('data-id');
-    const card = btn.closest('.article-card');
-
-    if (confirm('Tem certeza que deseja excluir este artigo?')) {
-        deleteArticle(artigoId, card);
-    }
-}
-
-function handleEditArticle(e) {
-    const btn = e.currentTarget;
-    const artigoId = btn.getAttribute('data-id');
-    const card = btn.closest('.article-card');
-    abrirFormularioEdicao(card, artigoId);
-}
-
-async function deleteArticle(artigoId, cardElement) {
-    try {
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        const fetchOptions = {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json'
-            }
-        };
-
-        if (!isSafari) {
-            fetchOptions.credentials = 'include';
-        }
-
-        const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, fetchOptions);
-
-        const contentType = resp.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-            const errorText = await resp.text();
-            throw new Error(`Resposta inválida: ${errorText.substring(0, 100)}`);
-        }
-
-        const result = await resp.json();
-
-        if (resp.ok) {
-            cardElement.remove();
-            updateBulkActions();
-            showToast('✅ Artigo excluído com sucesso!', 'success');
-        } else {
-            throw new Error(result.msg || 'Erro ao excluir artigo');
-        }
-    } catch (err) {
-        console.error('Erro ao excluir artigo:', err);
-        showToast(`❌ Falha ao excluir: ${err.message}`, 'error');
-    }
-}
-
-function abrirFormularioEdicao(card, artigoId) {
-    if (!artigoId) {
-        showToast('ID do artigo não encontrado', 'error');
-        console.error('data-id inexistente no card:', card);
-        return;
     }
 
-    const titulo = card.querySelector('.article-title')?.textContent?.trim() || '';
-    const excerpt = card.querySelector('.article-excerpt')?.textContent?.replace('...', '').trim() || '';
-    const metaItems = card.querySelectorAll('.article-meta .meta-item');
-    const dataRaw = card.dataset.date || '';
-    const autor = (metaItems[1] ? metaItems[1].textContent.replace('👤', '').trim() : '') || '';
+    /**
+     * Adiciona os listeners de evento aos botões de editar, apagar e checkboxes.
+     */
+    function attachEventListeners() {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const artigoId = e.currentTarget.dataset.id;
+                showConfirmationModal('Tem certeza que deseja excluir este artigo?', () => {
+                    deleteArticle(artigoId);
+                });
+            });
+        });
 
-    const dataIso = dataRaw ? new Date(dataRaw).toISOString().split('T')[0] : '';
-
-    // Fechar modal existente se houver
-    const modalExistente = document.getElementById('editModal');
-    if (modalExistente) modalExistente.remove();
-
-    const formHtml = `
-      <div id="editModal" class="modal">
-        <div class="modal-content">
-          <h2>Editar Artigo</h2>
-          <label>Título</label>
-          <input type="text" id="editTitulo" value="${escapeHtml(titulo)}">
-          <label>Conteúdo</label>
-          <textarea id="editConteudo">${escapeHtml(excerpt)}</textarea>
-          <label>Autor</label>
-          <input type="text" id="editAutor" value="${escapeHtml(autor)}">
-          <label>Data</label>
-          <input type="date" id="editData" value="${dataIso}">
-          <div class="modal-actions">
-            <button id="saveEdit" class="btn btn-primary">Salvar</button>
-            <button id="cancelEdit" class="btn btn-secondary">Cancelar</button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', formHtml);
-
-    // Adicionar evento para fechar modal ao clicar no fundo escuro
-    const modal = document.getElementById('editModal');
-    modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.remove();
-        }
-    });
-
-    // Evento para cancelar
-    document.getElementById('cancelEdit').addEventListener('click', function() {
-        document.getElementById('editModal').remove();
-    });
-
-    // Evento para salvar
-    document.getElementById('saveEdit').addEventListener('click', async function() {
-        const saveBtn = this;
-        const originalText = saveBtn.textContent;
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Salvando...';
-
-        try {
-            const formData = new FormData();
-            formData.append('titulo', document.getElementById('editTitulo').value);
-            formData.append('conteudo', document.getElementById('editConteudo').value);
-            formData.append('autor', document.getElementById('editAutor').value);
-            formData.append('data', document.getElementById('editData').value);
-
-            const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
-                method: 'PUT',
-                body: formData,
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json'
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const artigoId = e.currentTarget.dataset.id;
+                try {
+                    const response = await authenticatedFetch(`${API_BASE_URL}/artigos/${artigoId}`);
+                    const artigo = await response.json();
+                    if (!response.ok) throw new Error(artigo.msg);
+                    abrirFormularioEdicao(artigo);
+                } catch (error) {
+                    showToast(`Erro ao buscar dados do artigo: ${error.message}`, 'error');
                 }
             });
-
-            const contentType = resp.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const text = await resp.text();
-                throw new Error(`Resposta não é JSON: ${text.substring(0, 100)}`);
-            }
-
-            const result = await resp.json();
-
-            if (!resp.ok) {
-                throw new Error(result.msg || 'Erro ao atualizar artigo');
-            }
-
-            showToast('✅ Artigo atualizado com sucesso!', 'success');
-            document.getElementById('editModal').remove();
-            carregarArtigos();
-        } catch (err) {
-            console.error('Falha na requisição PUT:', err);
-            showToast(`❌ Erro: ${err.message}`, 'error');
-        } finally {
-            saveBtn.disabled = false;
-            saveBtn.textContent = originalText;
-        }
-    });
-}
-
-// Função para mostrar notificação toast
-function showToast(message, type = 'info') {
-    // Remove toasts existentes
-    const existingToasts = document.querySelectorAll('.toast-notification');
-    existingToasts.forEach(toast => toast.remove());
-
-    const toast = document.createElement('div');
-    toast.className = `toast-notification ${type}`;
-    toast.textContent = message;
-    
-    // Adicionar estilos inline para garantir que apareça
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 24px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        z-index: 10000;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        max-width: 400px;
-        word-wrap: break-word;
-    `;
-    
-    // Definir cores baseadas no tipo
-    switch (type) {
-        case 'success':
-            toast.style.backgroundColor = '#059669';
-            break;
-        case 'error':
-            toast.style.backgroundColor = '#DC2626';
-            break;
-        case 'warning':
-            toast.style.backgroundColor = '#D97706';
-            break;
-        default:
-            toast.style.backgroundColor = '#3B82F6';
+        });
+        
+        document.querySelectorAll('.article-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkActions);
+        });
     }
-    
-    document.body.appendChild(toast);
-    
-    // Animar entrada
-    setTimeout(() => {
-        toast.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Animar saída e remover
-    setTimeout(() => {
-        toast.style.transform = 'translateX(400px)';
-        setTimeout(() => toast.remove(), 300);
-    }, 5000);
-}
 
-// Função para escapar HTML
-function escapeHtml(str = '') {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
+    /**
+     * Função para deletar um artigo.
+     */
+    async function deleteArticle(artigoId) {
+        try {
+            const response = await authenticatedFetch(`${API_BASE_URL}/api/artigos/${artigoId}`, {
+                method: 'DELETE',
+            });
+            
+            const result = await response.json();
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
+            if (!response.ok) {
+                throw new Error(result.msg || 'Erro desconhecido ao excluir');
+            }
+
+            const cardElement = document.querySelector(`.article-card[data-id="${artigoId}"]`);
+            if (cardElement) {
+                cardElement.style.transition = 'opacity 0.3s ease';
+                cardElement.style.opacity = '0';
+                setTimeout(() => {
+                    cardElement.remove();
+                    updateBulkActions();
+                }, 300);
+            }
+            
+            showToast('✅ Artigo excluído com sucesso!', 'success');
+
+        } catch (err) {
+            console.error('Erro ao excluir artigo:', err);
+            if (!err.message.includes('Sessão expirada')) {
+                showToast(`❌ Falha ao excluir: ${err.message}`, 'error');
+            }
+        }
+    }
+
+    /**
+     * Abre o modal de edição com os dados do artigo.
+     */
+    function abrirFormularioEdicao(artigo) {
+        document.getElementById('editModal')?.remove();
+        const dataFormatada = new Date(artigo.data).toISOString().split('T')[0];
+
+        const formHtml = `
+          <div id="editModal" class="modal">
+            <div class="modal-content">
+              <h2>Editar Artigo</h2>
+              <label>Título</label>
+              <input type="text" id="editTitulo" value="${escapeHtml(artigo.titulo)}">
+              <label>Conteúdo</label>
+              <textarea id="editConteudo" rows="10">${escapeHtml(artigo.conteudo)}</textarea>
+              <label>Autor</label>
+              <input type="text" id="editAutor" value="${escapeHtml(artigo.autor)}">
+              <label>Data</label>
+              <input type="date" id="editData" value="${dataFormatada}">
+              <div class="modal-actions">
+                <button id="saveEdit" class="btn btn-primary">Salvar</button>
+                <button id="cancelEdit" class="btn btn-secondary">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', formHtml);
+        const modal = document.getElementById('editModal');
+
+        modal.querySelector('#cancelEdit').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+        
+        modal.querySelector('#saveEdit').addEventListener('click', async (e) => {
+            const saveBtn = e.currentTarget;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Salvando...';
+
+            const dadosAtualizados = {
+                titulo: document.getElementById('editTitulo').value,
+                conteudo: document.getElementById('editConteudo').value,
+                autor: document.getElementById('editAutor').value,
+                data: document.getElementById('editData').value,
+            };
+
+            try {
+                const response = await authenticatedFetch(`${API_BASE_URL}/api/artigos/${artigo._id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(dadosAtualizados),
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.msg || 'Erro ao atualizar');
+
+                showToast('✅ Artigo atualizado com sucesso!', 'success');
+                modal.remove();
+                carregarArtigos();
+
+            } catch (err) {
+                if (!err.message.includes('Sessão expirada')) {
+                    showToast(`❌ Erro: ${err.message}`, 'error');
+                }
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Salvar';
+            }
+        });
+    }
+
+    /**
+     * Exibe um modal de confirmação customizado.
+     */
+    function showConfirmationModal(message, onConfirm) {
+        document.getElementById('confirmationModal')?.remove();
+        const modalHtml = `
+            <div id="confirmationModal" class="modal">
+                <div class="modal-content">
+                    <h2>Confirmação</h2>
+                    <p>${escapeHtml(message)}</p>
+                    <div class="modal-actions">
+                        <button id="confirmBtn" class="btn btn-danger">Confirmar</button>
+                        <button id="cancelBtn" class="btn btn-secondary">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modal = document.getElementById('confirmationModal');
+        const closeModal = () => modal.remove();
+        modal.querySelector('#confirmBtn').addEventListener('click', () => {
+            onConfirm();
+            closeModal();
+        });
+        modal.querySelector('#cancelBtn').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    }
+
+    /**
+     * Atualiza a visibilidade e o texto da barra de ações em lote.
+     */
+    function updateBulkActions() {
+        const selectedCount = document.querySelectorAll('.article-checkbox:checked').length;
+        const bulkActions = document.getElementById('bulkActions');
+        if (!bulkActions) return;
+
+        if (selectedCount > 0) {
+            bulkActions.classList.add('show');
+            bulkActions.querySelector('span').innerHTML = `<strong>${selectedCount}</strong> artigos selecionados`;
+        } else {
+            bulkActions.classList.remove('show');
+        }
+    }
+
+    // --- Funções de UI (Estado de Carregamento, Erro, Vazio) ---
+    function showLoadingState() {
+        articlesGrid.innerHTML = '<div class="loading-indicator">Carregando artigos...</div>';
+    }
+
+    function renderErrorState(message) {
+        articlesGrid.innerHTML = `<div class="empty-state"><h3>⚠️ Erro ao carregar</h3><p>${escapeHtml(message)}</p><button onclick="window.location.reload()" class="btn btn-primary">Tentar Novamente</button></div>`;
+    }
+
+    function renderEmptyState() {
+        articlesGrid.innerHTML = `<div class="empty-state"><h3>Nenhum artigo encontrado</h3><p>Crie seu primeiro artigo para vê-lo aqui.</p></div>`;
+    }
+
+    // --- Funções Utilitárias ---
+    function showToast(message, type = 'info') {
+        document.querySelector('.toast-notification')?.remove();
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type} show`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
+
+    function escapeHtml(str = '') {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // --- Inicialização ---
     carregarArtigos();
-    
-    // Event listener para exclusão em lote
+
     const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
     if (bulkDeleteBtn) {
         bulkDeleteBtn.addEventListener('click', () => {
-            const selected = Array.from(document.querySelectorAll('.article-checkbox:checked'));
-            if (selected.length === 0) {
-                showToast('Selecione pelo menos um artigo', 'warning');
+            const selectedIds = Array.from(document.querySelectorAll('.article-checkbox:checked')).map(cb => cb.dataset.id);
+            if (selectedIds.length === 0) {
+                showToast('Selecione pelo menos um artigo.', 'warning');
                 return;
             }
-            
-            if (confirm(`Tem certeza que deseja excluir ${selected.length} artigo(s)?`)) {
-                selected.forEach(checkbox => {
-                    const card = checkbox.closest('.article-card');
-                    const deleteBtn = card.querySelector('.delete-btn');
-                    const artigoId = deleteBtn.getAttribute('data-id');
-                    deleteArticle(artigoId, card);
-                });
-            }
+            showConfirmationModal(`Tem certeza que deseja excluir ${selectedIds.length} artigo(s)?`, () => {
+                const deletePromises = selectedIds.map(id => deleteArticle(id));
+                Promise.all(deletePromises); // Executa todas as exclusões
+            });
         });
     }
 });
