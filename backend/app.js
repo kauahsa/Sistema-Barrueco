@@ -6,6 +6,9 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const cors = require('cors');
+const Parser = require('rss-parser');
+
+const parser = new Parser();
 
 // Importa os models
 const admins = require('./models/admins');
@@ -72,7 +75,7 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'in
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'login.html')));
 const publicPages = {
     '/sobre': 'paginas/sobre.html', '/atuacao': 'paginas/atuacao.html', '/equipe': 'paginas/equipe.html',
-    '/noticias': 'paginas/noticias.html', '/artigo': 'paginas/artigo.html', '/contato': 'paginas/contato.html',
+    '/noticias': 'paginas/noticias.html', '/artigos': 'paginas/artigo.html', '/contato': 'paginas/contato.html',
     '/andre_andrade': 'paginas/andre_andrade.html', '/carolina': 'paginas/carolina.html', '/zacarias': 'paginas/zacarias.html',
 };
 for (const [route, file] of Object.entries(publicPages)) {
@@ -187,7 +190,7 @@ apiRouter.put('/artigos/:id', async (req, res) => {
 app.use('/api', apiRouter);
 
 // Rota pública para listar artigos (não precisa de token)
-app.get('/artigos', async (req, res) => {
+app.get('/home/artigos', async (req, res) => {
     try {
         const artigos = await Artigo.find().sort({ data: -1 }).limit(10);
         res.json(artigos); // <<< TEM QUE RESPONDER JSON
@@ -195,6 +198,41 @@ app.get('/artigos', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: 'Erro ao buscar artigos' });
     }
+});
+
+async function buscarNoticias() {
+  const fontes = [
+    { nome: 'STF', url: 'https://portal.stf.jus.br/rss/STF-noticias.xml' },
+    { nome: 'STJ', url: 'https://www.stj.jus.br/sites/portalp/Paginas/rss.aspx' },
+    { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
+  { nome: 'Migalhas', url: 'https://www.migalhas.com.br/rss' }
+  ];
+
+  const todasNoticias = [];
+
+  for (const fonte of fontes) {
+    try {
+      const feed = await parser.parseURL(fonte.url);
+      feed.items.slice(0, 5).forEach(item => {
+        todasNoticias.push({
+          fonte: fonte.nome,
+          titulo: item.title,
+          link: item.link,
+          data: item.pubDate || item.isoDate || '',
+          resumo: item.contentSnippet || item.content || ''
+        });
+      });
+    } catch (e) {
+      console.error(`Erro na fonte ${fonte.nome}:`, e.message);
+    }
+  }
+
+  return todasNoticias;
+}
+
+app.get('/home/noticias', async (req, res) => {
+    const noticias = await buscarNoticias();
+  res.json(noticias);
 });
 
 // Rota pública para buscar um artigo (não precisa de token)
