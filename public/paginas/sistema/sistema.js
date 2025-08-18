@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Função de validação
     function validateForm() {
         const errors = [];
@@ -182,6 +183,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!dataInput?.value) {
             errors.push('Data é obrigatória');
 =======
+=======
+>>>>>>> parent of 9c59aca (Update sistema.js)
     // Função para formatar tamanho de arquivo
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
@@ -274,6 +277,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // Adicionar PDF se selecionado
         if (pdfInput.files[0]) {
             formData.append('pdf', pdfInput.files[0]);
+<<<<<<< HEAD
+>>>>>>> parent of 9c59aca (Update sistema.js)
+=======
 >>>>>>> parent of 9c59aca (Update sistema.js)
         }
 
@@ -420,6 +426,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 autorInput.value = '';
                 dataInput.value = '';
                 removePdf(); // Limpar PDF também
+<<<<<<< HEAD
+>>>>>>> parent of 9c59aca (Update sistema.js)
+=======
 >>>>>>> parent of 9c59aca (Update sistema.js)
 
                     // Sucesso
