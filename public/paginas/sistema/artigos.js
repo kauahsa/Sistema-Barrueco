@@ -212,6 +212,48 @@ function handleDeleteArticle(e) {
     }
 }
 
+function handleEditArticle(e) {
+    const card = e.target.closest('.article-card');
+    abrirFormularioEdicao(card);
+}
+
+async function deleteArticle(artigoId, cardElement) {
+    try {
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const fetchOptions = {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json'
+            }
+        };
+
+        if (!isSafari) {
+            fetchOptions.credentials = 'include';
+        }
+
+        const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, fetchOptions);
+
+        const contentType = resp.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            const errorText = await resp.text();
+            throw new Error(`Resposta inválida: ${errorText.substring(0, 100)}`);
+        }
+
+        const result = await resp.json();
+
+        if (resp.ok) {
+            cardElement.remove();
+            updateBulkActions();
+            showToast('Artigo excluído com sucesso', 'success');
+        } else {
+            throw new Error(result.msg || 'Erro ao excluir artigo');
+        }
+    } catch (err) {
+        console.error('Erro ao excluir artigo:', err);
+        showToast(`Falha ao excluir: ${err.message}`, 'error');
+    }
+}
+
 function abrirFormularioEdicao(card) {
     const artigoId = card.dataset.id;
     if (!artigoId) {
@@ -311,48 +353,6 @@ function abrirFormularioEdicao(card) {
         }
     });
 }
-function handleEditArticle(e) {
-    const card = e.target.closest('.article-card');
-    abrirFormularioEdicao(card);
-}
-
-async function deleteArticle(artigoId, cardElement) {
-    try {
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        const fetchOptions = {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json'
-            }
-        };
-
-        if (!isSafari) {
-            fetchOptions.credentials = 'include';
-        }
-
-        const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, fetchOptions);
-
-        const contentType = resp.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-            const errorText = await resp.text();
-            throw new Error(`Resposta inválida: ${errorText.substring(0, 100)}`);
-        }
-
-        const result = await resp.json();
-
-        if (resp.ok) {
-            cardElement.remove();
-            updateBulkActions();
-            showToast('Artigo excluído com sucesso', 'success');
-        } else {
-            throw new Error(result.msg || 'Erro ao excluir artigo');
-        }
-    } catch (err) {
-        console.error('Erro ao excluir artigo:', err);
-        showToast(`Falha ao excluir: ${err.message}`, 'error');
-    }
-}
-
 // Função para mostrar notificação toast
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
