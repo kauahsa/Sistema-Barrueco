@@ -232,7 +232,24 @@ async function buscarNoticias() {
     }
     return todasNoticias;
 }
-
+app.get('/artigos/:id', async (req, res) => {
+    try {
+        // Busca o artigo pelo ID fornecido na URL
+        const artigo = await Artigo.findById(req.params.id);
+        
+        // Se não encontrar o artigo, retorna 404
+        if (!artigo) {
+            return res.status(404).json({ msg: 'Artigo não encontrado' });
+        }
+        
+        // Retorna o artigo encontrado
+        res.json(artigo);
+    } catch (err) {
+        // Em caso de erro (como ID inválido), retorna 500
+        console.error('Erro ao buscar artigo:', err);
+        res.status(500).json({ msg: 'Erro interno ao buscar artigo' });
+    }
+});
 app.get('/noticias', async (req, res) => {
     res.json(await buscarNoticias());
 });
