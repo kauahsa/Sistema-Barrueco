@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function carregarArtigos() {
         showLoadingState();
         try {
-            const response = await authenticatedFetch(`/artigos`);
+            const response = await authenticatedFetch(`/home/artigos`);
             const artigos = await response.json();
 
             if (!response.ok) {
