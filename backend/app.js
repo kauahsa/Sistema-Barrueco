@@ -99,14 +99,13 @@ authRouter.post('/login', async (req, res) => {
         const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '8h' });
         
         // --- ALTERAÇÃO PRINCIPAL AQUI ---
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 8 * 60 * 60 * 1000, // 8 horas
-            // 'secure: true' exige que a conexão seja HTTPS. Essencial para 'SameSite=None'.
-            secure: true, 
-            // 'sameSite: None' permite que o cookie seja enviado em requisições cross-origin.
-            sameSite: 'None', 
-        });
+        rres.cookie('token', token, {
+  httpOnly: true,
+  maxAge: 8 * 60 * 60 * 1000,
+  secure: process.env.NODE_ENV === 'production', 
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+});
+
 
         res.json({ msg: "Autenticação realizada com sucesso" });
     } catch (error) {
@@ -117,7 +116,11 @@ authRouter.post('/login', async (req, res) => {
 
 authRouter.post('/logout', (req, res) => {
     // Ao fazer logout, limpe o cookie com as mesmas propriedades de segurança
-    res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'None' })
+    res.clearCookie('token', {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+})
        .json({ msg: 'Logout realizado com sucesso' });
 });
 
