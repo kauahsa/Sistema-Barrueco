@@ -68,6 +68,10 @@ document.getElementById('sortFilter').addEventListener('change', function () {
                 return a.querySelector('.article-title').textContent.localeCompare(
                     b.querySelector('.article-title').textContent
                 );
+            case 'title-desc':
+                return b.querySelector('.article-title').textContent.localeCompare(
+                    a.querySelector('.article-title').textContent
+                );
             default:
                 return 0;
         }
@@ -79,18 +83,34 @@ document.getElementById('sortFilter').addEventListener('change', function () {
 // Carregar artigos do banco e montar HTML
 async function carregarArtigos() {
     try {
-        const resp = await fetch('/artigos');
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'loading-indicator';
+        loadingIndicator.innerHTML = 'Carregando artigos...';
+        const container = document.getElementById('articlesGrid');
+        container.innerHTML = '';
+        container.appendChild(loadingIndicator);
+
+        const resp = await fetch('https://sistema-barrueco.onrender.com/artigos', {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
         
         // Verificar se a resposta é JSON
         const contentType = resp.headers.get('content-type');
-        if (!resp.ok || !contentType || !contentType.includes('application/json')) {
+        if (!contentType || !contentType.includes('application/json')) {
             const errorText = await resp.text();
-            throw new Error(errorText || 'Erro ao buscar artigos');
+            throw new Error(errorText || 'Resposta do servidor não é JSON');
+        }
+        
+        if (!resp.ok) {
+            const errorData = await resp.json();
+            throw new Error(errorData.message || `Erro ${resp.status} ao buscar artigos`);
         }
         
         const artigos = await resp.json();
 
-        const container = document.getElementById('articlesGrid');
         container.innerHTML = '';
 
         if (artigos.length === 0) {
@@ -109,27 +129,28 @@ async function carregarArtigos() {
             artigoCard.classList.add('article-card');
             artigoCard.dataset.status = artigo.status || 'draft';
             artigoCard.dataset.pdf = artigo.pdf || '';
-            artigoCard.dataset.date = artigo.data;
+            artigoCard.dataset.date = artigo.data || new Date().toISOString();
             artigoCard.dataset.id = artigo._id;
+
+            // Adiciona checkbox para seleção em lote
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'article-checkbox';
+            checkbox.addEventListener('change', updateBulkActions);
 
             artigoCard.innerHTML = `
                 <div class="article-header">
-                    
+                    <div class="article-checkbox-container">
+                        ${checkbox.outerHTML}
+                    </div>
                     <div class="article-image">📄</div>
                     <div class="article-content">
-                        <h3 class="article-title">${escapeHtml(artigo.titulo)}</h3>
-                        <p class="article-excerpt">${escapeHtml(artigo.conteudo.substring(0, 100))}...</p>
+                        <h3 class="article-title">${escapeHtml(artigo.titulo || 'Sem título')}</h3>
+                        <p class="article-excerpt">${escapeHtml((artigo.conteudo || '').substring(0, 100))}${artigo.conteudo?.length > 100 ? '...' : ''}</p>
                         <div class="article-meta">
-                            <span class="meta-item">📅 ${new Date(artigo.data).toLocaleDateString('pt-BR')}</span>
-                            <span class="meta-item">👤 ${escapeHtml(artigo.autor)}</span>
+                            <span class="meta-item">📅 ${artigo.data ? new Date(artigo.data).toLocaleDateString('pt-BR') : 'Sem data'}</span>
+                            <span class="meta-item">👤 ${escapeHtml(artigo.autor || 'Anônimo')}</span>
                         </div>
-                    </div>
-                </div>
-                <div class="article-stats">
-                    <div class="stat-item">
-                        <span>⏰</span>
-                        <span class="stat-value">-</span>
-                        <span>atrás</span>
                     </div>
                 </div>
                 <div class="article-actions">
@@ -152,6 +173,11 @@ async function carregarArtigos() {
             btn.addEventListener('click', handleEditArticle);
         });
 
+        // Atualiza checkboxes
+        document.querySelectorAll('.article-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkActions);
+        });
+
     } catch (err) {
         console.error('Erro ao carregar artigos:', err);
         const container = document.getElementById('articlesGrid');
@@ -159,7 +185,7 @@ async function carregarArtigos() {
             <div class="empty-state">
                 <div class="empty-icon">⚠️</div>
                 <h3 class="empty-title">Erro ao carregar artigos</h3>
-                <p class="empty-description">${err.message}</p>
+                <p class="empty-description">${escapeHtml(err.message)}</p>
                 <button onclick="carregarArtigos()" class="btn btn-small btn-primary">Tentar novamente</button>
             </div>
         `;
@@ -187,7 +213,7 @@ async function deleteArticle(artigoId, cardElement) {
             method: 'DELETE',
             credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
+                'Accept': 'application/json'
             }
         });
 
@@ -203,26 +229,26 @@ async function deleteArticle(artigoId, cardElement) {
         if (resp.ok) {
             cardElement.remove();
             updateBulkActions();
-            console.log('✅ Artigo excluído:', result.msg);
+            showToast('✅ Artigo excluído com sucesso', 'success');
         } else {
             throw new Error(result.msg || 'Erro ao excluir artigo');
         }
     } catch (err) {
         console.error('Erro ao excluir artigo:', err);
-        alert(`Falha ao excluir artigo: ${err.message}`);
+        showToast(`❌ Falha ao excluir artigo: ${err.message}`, 'error');
     }
 }
 
 function abrirFormularioEdicao(card) {
     const artigoId = card.dataset.id;
     if (!artigoId) {
-        alert('ID do artigo não encontrado no elemento. Verifique data-id.');
+        showToast('ID do artigo não encontrado', 'error');
         console.error('data-id inexistente no card:', card);
         return;
     }
 
     const titulo = card.querySelector('.article-title')?.textContent?.trim() || '';
-    const excerpt = card.querySelector('.article-excerpt')?.textContent || '';
+    const excerpt = card.querySelector('.article-excerpt')?.textContent?.replace('...', '').trim() || '';
     const metaItems = card.querySelectorAll('.article-meta .meta-item');
     const dataRaw = card.dataset.date || '';
     const autor = (metaItems[1] ? metaItems[1].textContent.replace('👤', '').trim() : '') || '';
@@ -240,13 +266,11 @@ function abrirFormularioEdicao(card) {
           <label>Título</label>
           <input type="text" id="editTitulo" value="${escapeHtml(titulo)}">
           <label>Conteúdo</label>
-          <textarea id="editConteudo">${escapeHtml(excerpt.replace('...', ''))}</textarea>
+          <textarea id="editConteudo">${escapeHtml(excerpt)}</textarea>
           <label>Autor</label>
           <input type="text" id="editAutor" value="${escapeHtml(autor)}">
           <label>Data</label>
           <input type="date" id="editData" value="${dataIso}">
-          <label>PDF (opcional)</label>
-          <input type="file" id="editPdf" accept="application/pdf">
           <div class="modal-actions">
             <button id="saveEdit" class="btn btn-primary">Salvar</button>
             <button id="cancelEdit" class="btn btn-secondary">Cancelar</button>
@@ -261,6 +285,7 @@ function abrirFormularioEdicao(card) {
 
     document.getElementById('saveEdit').onclick = async () => {
         const saveBtn = document.getElementById('saveEdit');
+        const originalText = saveBtn.textContent;
         saveBtn.disabled = true;
         saveBtn.textContent = 'Salvando...';
 
@@ -271,13 +296,13 @@ function abrirFormularioEdicao(card) {
             formData.append('autor', document.getElementById('editAutor').value);
             formData.append('data', document.getElementById('editData').value);
 
-            const pdfFile = document.getElementById('editPdf').files[0];
-            if (pdfFile) formData.append('pdf', pdfFile);
-
             const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
                 method: 'PUT',
                 body: formData,
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
             });
 
             // Verificar se a resposta é JSON
@@ -293,23 +318,60 @@ function abrirFormularioEdicao(card) {
                 throw new Error(result.msg || 'Erro ao atualizar artigo');
             }
 
-            alert('✅ Artigo atualizado com sucesso!');
+            showToast('✅ Artigo atualizado com sucesso!', 'success');
             document.getElementById('editModal').remove();
             carregarArtigos(); // Recarregar a lista de artigos
         } catch (err) {
             console.error('Falha na requisição PUT:', err);
-            alert(`Erro: ${err.message}`);
+            showToast(`❌ Erro: ${err.message}`, 'error');
         } finally {
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Salvar';
+            saveBtn.textContent = originalText;
         }
     };
 }
 
+// Função para mostrar notificação toast
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
 // Função para escapar HTML (para evitar injeção)
 function escapeHtml(str = '') {
-    return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }
 
 // Inicializa carregando artigos
-document.addEventListener('DOMContentLoaded', carregarArtigos);
+document.addEventListener('DOMContentLoaded', () => {
+    carregarArtigos();
+    
+    // Adiciona evento para ações em lote
+    document.getElementById('bulkDeleteBtn')?.addEventListener('click', () => {
+        const selected = Array.from(document.querySelectorAll('.article-checkbox:checked'));
+        if (selected.length === 0) {
+            showToast('Selecione pelo menos um artigo', 'warning');
+            return;
+        }
+        
+        if (confirm(`Tem certeza que deseja excluir ${selected.length} artigo(s)?`)) {
+            selected.forEach(checkbox => {
+                const card = checkbox.closest('.article-card');
+                deleteArticle(card.dataset.id, card);
+            });
+        }
+    });
+});

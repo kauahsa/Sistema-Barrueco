@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const messageContent = document.getElementById('messageContent');
     const messageClose = document.getElementById('messageClose');
 
+    // Verifica se estamos em um dispositivo móvel
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     // Função para mostrar loading
     function showLoading() {
         loadingOverlay.classList.add('show');
@@ -68,6 +71,12 @@ document.addEventListener('DOMContentLoaded', function () {
     articleForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         
+        // Verificar conexão antes de enviar (especialmente para mobile)
+        if (isMobile && !navigator.onLine) {
+            showMessage("Você está offline. Conecte-se para publicar.", 'error');
+            return;
+        }
+
         // Criar FormData para incluir arquivos
         const formData = new FormData();
         formData.append('titulo', tituloInput.value);
@@ -78,13 +87,21 @@ document.addEventListener('DOMContentLoaded', function () {
         // Mostrar loading imediatamente
         showLoading();
 
+        // Configurar timeout mais longo para mobile
+        const timeoutDuration = isMobile ? 15000 : 8000;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutDuration);
+
         try {
             const response = await fetch('https://sistema-barrueco.onrender.com/postArt', {
                 method: 'POST',
                 credentials: 'include',
-                body: formData // Usar FormData em vez de JSON
+                body: formData,
+                signal: controller.signal
             });
 
+            clearTimeout(timeout);
+            
             const result = await response.json();
             
             // Aguardar pelo menos 2 segundos antes de esconder o loading
@@ -92,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 hideLoading();
                 
                 if (!response.ok) {
-                    showMessage(result.msg, 'error');
+                    showMessage(result.msg || "Erro desconhecido", 'error');
                     shakeInputs();
                     return;
                 }
@@ -109,9 +126,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 2000);
 
         } catch (err) {
+            clearTimeout(timeout);
             setTimeout(() => {
                 hideLoading();
-                showMessage("Erro de conexão com o servidor", 'error');
+                const errorMsg = err.name === 'AbortError' 
+                    ? "A requisição demorou muito. Verifique sua conexão." 
+                    : "Erro de conexão com o servidor";
+                showMessage(errorMsg, 'error');
                 shakeInputs();
             }, 2000);
             console.error('Erro:', err);
