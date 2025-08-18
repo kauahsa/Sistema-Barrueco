@@ -851,7 +851,7 @@
 
                     try {
                         // 3. Envia os dados para a rota /PostArt no backend
-                        const response = await authenticatedFetch('/PostArt', {
+                        const response = await authenticatedFetch('/api/PostArt', {
                             method: 'POST',
                             body: JSON.stringify(articleData),
                         });
