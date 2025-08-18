@@ -11,26 +11,44 @@ document.addEventListener('DOMContentLoaded', function () {
     const messageContent = document.getElementById('messageContent');
     const messageClose = document.getElementById('messageClose');
 
-    // Verifica se estamos em um dispositivo móvel
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Detecção mais robusta de dispositivos móveis
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                     window.innerWidth <= 768 || 
+                     ('ontouchstart' in window);
     
-    // Verifica se é Safari
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    // Detecção mais precisa do Safari
+    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    console.log('Dispositivo detectado:', { isMobile, isSafari, isIOS });
 
     // Função para mostrar loading
     function showLoading() {
-        loadingOverlay.classList.add('show');
-        publishBtn.disabled = true;
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('show');
+        }
+        if (publishBtn) {
+            publishBtn.disabled = true;
+        }
     }
 
     // Função para esconder loading
     function hideLoading() {
-        loadingOverlay.classList.remove('show');
-        publishBtn.disabled = false;
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('show');
+        }
+        if (publishBtn) {
+            publishBtn.disabled = false;
+        }
     }
 
     // Função para mostrar mensagem toast
     function showMessage(msg, type) {
+        if (!messageToast || !messageIcon || !messageContent) {
+            alert(msg); // Fallback para alert se elementos não existirem
+            return;
+        }
+
         const icons = {
             success: '✅',
             error: '❌',
@@ -46,160 +64,248 @@ document.addEventListener('DOMContentLoaded', function () {
             messageToast.classList.add('show');
         }, 100);
 
+        // Auto-hide após 6 segundos (mais tempo para mobile)
         setTimeout(() => {
             hideMessage();
-        }, 5000);
+        }, 6000);
     }
 
     // Função para esconder mensagem
     function hideMessage() {
-        messageToast.classList.remove('show');
+        if (messageToast) {
+            messageToast.classList.remove('show');
+        }
     }
 
     // Event listener para fechar mensagem
-    messageClose.addEventListener('click', hideMessage);
+    if (messageClose) {
+        messageClose.addEventListener('click', hideMessage);
+    }
 
     // Função para animar erro nos inputs
     function shakeInputs() {
         const inputs = document.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.classList.add('shake');
-            setTimeout(() => {
-                input.classList.remove('shake');
-            }, 500);
+            if (input.classList) {
+                input.classList.add('shake');
+                setTimeout(() => {
+                    input.classList.remove('shake');
+                }, 500);
+            }
         });
     }
 
-    // Event listener do formulário
-    articleForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    // Função de validação melhorada
+    function validateForm() {
+        const errors = [];
         
-        // Verificar conexão antes de enviar
-        if (!navigator.onLine) {
-            showMessage("Você está offline. Conecte-se para publicar.", 'error');
-            return;
+        if (!tituloInput?.value?.trim()) {
+            errors.push('Título é obrigatório');
+        }
+        if (!conteudoInput?.value?.trim()) {
+            errors.push('Conteúdo é obrigatório');
+        }
+        if (!autorInput?.value?.trim()) {
+            errors.push('Autor é obrigatório');
+        }
+        if (!dataInput?.value) {
+            errors.push('Data é obrigatória');
         }
 
-        // Validar campos obrigatórios
-        if (!tituloInput.value.trim() || !conteudoInput.value.trim() || !autorInput.value.trim() || !dataInput.value) {
-            showMessage("Preencha todos os campos obrigatórios", 'error');
-            shakeInputs();
-            return;
-        }
+        return errors;
+    }
 
-        // Criar FormData
-        const formData = new FormData();
-        formData.append('titulo', tituloInput.value.trim());
-        formData.append('conteudo', conteudoInput.value.trim());
-        formData.append('autor', autorInput.value.trim());
-        formData.append('data', dataInput.value);
-
-        showLoading();
-
-        const timeoutDuration = isMobile ? 15000 : 8000;
+    // Função para fazer a requisição com retry
+    async function submitForm(formData, retryCount = 0) {
+        const maxRetries = isMobile ? 2 : 1;
+        const timeoutDuration = isMobile ? 25000 : 12000; // Mais tempo para mobile
+        
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), timeoutDuration);
+        const timeout = setTimeout(() => {
+            controller.abort();
+        }, timeoutDuration);
 
         try {
-            // Configuração específica para Safari
+            // Configurações específicas por dispositivo
             const fetchOptions = {
                 method: 'POST',
                 body: formData,
                 signal: controller.signal,
                 headers: {
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache'
+                    'Accept': 'application/json'
                 }
             };
 
-            // No Safari, modifica as opções
-            if (isSafari) {
-                // Tenta primeiro sem credentials
-                fetchOptions.credentials = 'omit';
+            // Configurações específicas para dispositivos móveis
+            if (isMobile) {
+                fetchOptions.headers['Cache-Control'] = 'no-cache, no-store';
+                fetchOptions.headers['Pragma'] = 'no-cache';
                 
-                // Adiciona header específico para Safari
-                fetchOptions.headers['X-Requested-With'] = 'XMLHttpRequest';
+                // Para iOS Safari
+                if (isIOS || isSafari) {
+                    fetchOptions.credentials = 'omit';
+                    fetchOptions.headers['X-Requested-With'] = 'XMLHttpRequest';
+                    fetchOptions.mode = 'cors';
+                } else {
+                    fetchOptions.credentials = 'same-origin';
+                }
             } else {
                 fetchOptions.credentials = 'include';
             }
 
-            const response = await fetch('https://sistema-barrueco.onrender.com/postArt', fetchOptions);
+            console.log('Enviando requisição:', fetchOptions);
 
-            clearTimeout(timeout);
+            const response = await fetch('https://sistema-barrueco.onrender.com/postArt', fetchOptions);
             
-            // Verificação robusta do content-type
+            clearTimeout(timeout);
+
+            // Log da resposta para debug
+            console.log('Status da resposta:', response.status);
+            console.log('Headers:', Object.fromEntries(response.headers.entries()));
+
+            // Verificação do content-type mais flexível
             const contentType = response.headers.get('content-type') || '';
-            if (!contentType.includes('application/json')) {
-                const errorText = await response.text();
-                console.error('Resposta não-JSON:', errorText.substring(0, 200));
+            let result;
+
+            if (contentType.includes('application/json')) {
+                result = await response.json();
+            } else {
+                // Tenta extrair JSON da resposta de texto
+                const textResponse = await response.text();
+                console.log('Resposta de texto:', textResponse.substring(0, 300));
                 
-                // Tentativa de fallback para Safari
-                if (isSafari) {
-                    try {
-                        const jsonStart = errorText.indexOf('{');
-                        if (jsonStart > -1) {
-                            const jsonString = errorText.substring(jsonStart);
-                            const result = JSON.parse(jsonString);
-                            if (result.msg) {
-                                showMessage(result.msg, response.ok ? 'success' : 'error');
-                                return;
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Fallback parsing failed:', e);
+                try {
+                    // Procura por JSON na resposta
+                    const jsonMatch = textResponse.match(/\{.*\}/);
+                    if (jsonMatch) {
+                        result = JSON.parse(jsonMatch[0]);
+                    } else {
+                        throw new Error('Formato de resposta inválido');
+                    }
+                } catch (parseError) {
+                    console.error('Erro ao parsear resposta:', parseError);
+                    
+                    // Se a resposta indica sucesso mas não conseguimos parsear
+                    if (response.ok) {
+                        result = { msg: 'Artigo enviado com sucesso!' };
+                    } else {
+                        throw new Error(`Erro do servidor: ${response.status}`);
                     }
                 }
-                
-                throw new Error(isSafari ? 
-                    'Configuração de segurança do Safari bloqueou a requisição. Tente outro navegador.' : 
-                    'Resposta inválida do servidor');
             }
-            
-            const result = await response.json();
-            
-            setTimeout(() => {
-                hideLoading();
-                
-                if (!response.ok) {
-                    showMessage(result.msg || "Erro ao processar sua solicitação", 'error');
-                    shakeInputs();
-                    return;
-                }
 
-                showMessage(result.msg, 'success');
-                tituloInput.value = '';
-                conteudoInput.value = '';
-                autorInput.value = '';
-                dataInput.value = '';
+            return { response, result };
 
-            }, 2000);
-
-        } catch (err) {
+        } catch (error) {
             clearTimeout(timeout);
-            setTimeout(() => {
-                hideLoading();
-                let errorMsg = err.message;
-                
-                if (err.name === 'AbortError') {
-                    errorMsg = "A requisição demorou muito. Verifique sua conexão.";
-                } else if (isSafari) {
-                    errorMsg = "Problema no Safari:\n" +
-                        "1. Acesse Ajustes > Safari\n" +
-                        "2. Desative 'Prevenção Contra Rastreamento'\n" +
-                        "3. Tente novamente";
-                }
-                
-                showMessage(errorMsg, 'error');
-                shakeInputs();
-            }, 2000);
-            console.error('Erro detalhado:', err);
             
-            // Tentativa alternativa para Safari
-            if (isSafari && err.message.includes('Failed to fetch')) {
-                console.warn('Tentando fallback para Safari...');
-                // Aqui você poderia implementar uma segunda tentativa
-                // com configurações diferentes se necessário
+            // Retry logic para dispositivos móveis
+            if (retryCount < maxRetries && 
+                (error.name === 'AbortError' || 
+                 error.message.includes('fetch') || 
+                 error.message.includes('network'))) {
+                
+                console.log(`Tentativa ${retryCount + 1} falhou, tentando novamente...`);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Aguarda 2s
+                return submitForm(formData, retryCount + 1);
             }
+            
+            throw error;
         }
-    });
+    }
+
+    // Event listener do formulário principal
+    if (articleForm) {
+        articleForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            console.log('Formulário submetido');
+
+            // Verificar conexão
+            if (!navigator.onLine) {
+                showMessage("Você está offline. Conecte-se para publicar.", 'error');
+                return;
+            }
+
+            // Validar campos
+            const errors = validateForm();
+            if (errors.length > 0) {
+                showMessage(errors.join(', '), 'error');
+                shakeInputs();
+                return;
+            }
+
+            // Preparar dados
+            const formData = new FormData();
+            formData.append('titulo', tituloInput.value.trim());
+            formData.append('conteudo', conteudoInput.value.trim());
+            formData.append('autor', autorInput.value.trim());
+            formData.append('data', dataInput.value);
+
+            // Log dos dados para debug
+            console.log('Dados do formulário:', {
+                titulo: tituloInput.value.trim(),
+                autor: autorInput.value.trim(),
+                data: dataInput.value
+            });
+
+            showLoading();
+
+            try {
+                const { response, result } = await submitForm(formData);
+                
+                // Adiciona delay visual (menor para mobile)
+                const delay = isMobile ? 1500 : 2000;
+                
+                setTimeout(() => {
+                    hideLoading();
+                    
+                    if (!response.ok) {
+                        showMessage(result.msg || `Erro ${response.status}: ${response.statusText}`, 'error');
+                        shakeInputs();
+                        return;
+                    }
+
+                    // Sucesso
+                    showMessage(result.msg || 'Artigo publicado com sucesso!', 'success');
+                    
+                    // Limpar formulário
+                    if (tituloInput) tituloInput.value = '';
+                    if (conteudoInput) conteudoInput.value = '';
+                    if (autorInput) autorInput.value = '';
+                    if (dataInput) dataInput.value = '';
+
+                }, delay);
+
+            } catch (error) {
+                console.error('Erro completo:', error);
+                
+                setTimeout(() => {
+                    hideLoading();
+                    
+                    let errorMsg = 'Erro desconhecido ao enviar artigo';
+                    
+                    if (error.name === 'AbortError') {
+                        errorMsg = isMobile ? 
+                            "Conexão lenta detectada. Tente novamente." : 
+                            "Tempo limite excedido. Tente novamente.";
+                    } else if (error.message.includes('Failed to fetch') || error.message.includes('network')) {
+                        errorMsg = isMobile ?
+                            "Erro de rede. Verifique sua conexão 3G/4G/WiFi." :
+                            "Erro de conexão. Verifique sua internet.";
+                    } else if (error.message.includes('blocked') || error.message.includes('cors')) {
+                        errorMsg = "Bloqueio de segurança detectado. Tente outro navegador.";
+                    } else {
+                        errorMsg = `Erro: ${error.message}`;
+                    }
+                    
+                    showMessage(errorMsg, 'error');
+                    shakeInputs();
+                }, 1500);
+            }
+        });
+    }
+
+    // Log de inicialização
+    console.log('Script carregado com sucesso para:', isMobile ? 'Mobile' : 'Desktop');
 });
