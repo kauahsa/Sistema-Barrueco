@@ -12,26 +12,31 @@ function updateBulkActions() {
         bulkActions.classList.remove('show');
     }
 
-    // Atualiza "selecionar todos"
-    if (selectedCount === checkboxes.length) {
-        selectAll.checked = true;
-        selectAll.indeterminate = false;
-    } else if (selectedCount > 0) {
-        selectAll.indeterminate = true;
-    } else {
-        selectAll.checked = false;
-        selectAll.indeterminate = false;
+    // Atualiza "selecionar todos" se existir
+    if (selectAll) {
+        if (selectedCount === checkboxes.length) {
+            selectAll.checked = true;
+            selectAll.indeterminate = false;
+        } else if (selectedCount > 0) {
+            selectAll.indeterminate = true;
+        } else {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        }
     }
 }
 
 // Selecionar/deselecionar todos
-document.getElementById('selectAll').addEventListener('change', function () {
-    const checkboxes = document.querySelectorAll('.article-checkbox');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
+const selectAllElement = document.getElementById('selectAll');
+if (selectAllElement) {
+    selectAllElement.addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.article-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
     });
-    updateBulkActions();
-});
+}
 
 // Limpar filtros
 function clearFilters() {
@@ -142,16 +147,10 @@ async function carregarArtigos() {
             artigoCard.dataset.date = artigo.data || new Date().toISOString();
             artigoCard.dataset.id = artigo._id;
 
-            // Adiciona checkbox para seleção em lote
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'article-checkbox';
-            checkbox.addEventListener('change', updateBulkActions);
-
             artigoCard.innerHTML = `
                 <div class="article-header">
                     <div class="article-checkbox-container">
-                        ${checkbox.outerHTML}
+                        <input type="checkbox" class="article-checkbox">
                     </div>
                     <div class="article-image">📄</div>
                     <div class="article-content">
@@ -165,8 +164,8 @@ async function carregarArtigos() {
                 </div>
                 <div class="article-actions">
                     <div class="action-buttons">
-                        <button class="btn btn-small btn-secondary">✏️ Editar</button>
-                        <button class="btn btn-small btn-danger">🗑️ Apagar</button>
+                        <button class="btn btn-small btn-secondary edit-btn" data-id="${artigo._id}">✏️ Editar</button>
+                        <button class="btn btn-small btn-danger delete-btn" data-id="${artigo._id}">🗑️ Apagar</button>
                     </div>
                 </div>
             `;
@@ -174,19 +173,8 @@ async function carregarArtigos() {
             container.appendChild(artigoCard);
         });
 
-        // Atualiza eventos dos botões
-        document.querySelectorAll('.btn-danger').forEach(btn => {
-            btn.addEventListener('click', handleDeleteArticle);
-        });
-
-        document.querySelectorAll('.btn-secondary').forEach(btn => {
-            btn.addEventListener('click', handleEditArticle);
-        });
-
-        // Atualiza checkboxes
-        document.querySelectorAll('.article-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', updateBulkActions);
-        });
+        // Atualiza eventos dos botões após criar os elementos
+        attachEventListeners();
 
     } catch (err) {
         console.error('Erro ao carregar artigos:', err);
@@ -202,10 +190,29 @@ async function carregarArtigos() {
     }
 }
 
+// Função para anexar eventos aos botões
+function attachEventListeners() {
+    // Eventos para botões de exclusão
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', handleDeleteArticle);
+    });
+
+    // Eventos para botões de edição
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', handleEditArticle);
+    });
+
+    // Eventos para checkboxes
+    document.querySelectorAll('.article-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+}
+
 // Funções auxiliares para manipulação de eventos
 function handleDeleteArticle(e) {
-    const card = e.target.closest('.article-card');
-    const artigoId = card.dataset.id;
+    const btn = e.currentTarget;
+    const artigoId = btn.getAttribute('data-id');
+    const card = btn.closest('.article-card');
 
     if (confirm('Tem certeza que deseja excluir este artigo?')) {
         deleteArticle(artigoId, card);
@@ -213,8 +220,10 @@ function handleDeleteArticle(e) {
 }
 
 function handleEditArticle(e) {
-    const card = e.target.closest('.article-card');
-    abrirFormularioEdicao(card);
+    const btn = e.currentTarget;
+    const artigoId = btn.getAttribute('data-id');
+    const card = btn.closest('.article-card');
+    abrirFormularioEdicao(card, artigoId);
 }
 
 async function deleteArticle(artigoId, cardElement) {
@@ -244,18 +253,17 @@ async function deleteArticle(artigoId, cardElement) {
         if (resp.ok) {
             cardElement.remove();
             updateBulkActions();
-            showToast('Artigo excluído com sucesso', 'success');
+            showToast('✅ Artigo excluído com sucesso!', 'success');
         } else {
             throw new Error(result.msg || 'Erro ao excluir artigo');
         }
     } catch (err) {
         console.error('Erro ao excluir artigo:', err);
-        showToast(`Falha ao excluir: ${err.message}`, 'error');
+        showToast(`❌ Falha ao excluir: ${err.message}`, 'error');
     }
 }
 
-function abrirFormularioEdicao(card) {
-    const artigoId = card.dataset.id;
+function abrirFormularioEdicao(card, artigoId) {
     if (!artigoId) {
         showToast('ID do artigo não encontrado', 'error');
         console.error('data-id inexistente no card:', card);
@@ -297,16 +305,19 @@ function abrirFormularioEdicao(card) {
     document.body.insertAdjacentHTML('beforeend', formHtml);
 
     // Adicionar evento para fechar modal ao clicar no fundo escuro
-    document.getElementById('editModal').addEventListener('click', function(e) {
+    const modal = document.getElementById('editModal');
+    modal.addEventListener('click', function(e) {
         if (e.target === this) {
             this.remove();
         }
     });
 
+    // Evento para cancelar
     document.getElementById('cancelEdit').addEventListener('click', function() {
         document.getElementById('editModal').remove();
     });
 
+    // Evento para salvar
     document.getElementById('saveEdit').addEventListener('click', async function() {
         const saveBtn = this;
         const originalText = saveBtn.textContent;
@@ -353,19 +364,58 @@ function abrirFormularioEdicao(card) {
         }
     });
 }
+
 // Função para mostrar notificação toast
 function showToast(message, type = 'info') {
+    // Remove toasts existentes
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+
     const toast = document.createElement('div');
     toast.className = `toast-notification ${type}`;
     toast.textContent = message;
+    
+    // Adicionar estilos inline para garantir que apareça
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        max-width: 400px;
+        word-wrap: break-word;
+    `;
+    
+    // Definir cores baseadas no tipo
+    switch (type) {
+        case 'success':
+            toast.style.backgroundColor = '#059669';
+            break;
+        case 'error':
+            toast.style.backgroundColor = '#DC2626';
+            break;
+        case 'warning':
+            toast.style.backgroundColor = '#D97706';
+            break;
+        default:
+            toast.style.backgroundColor = '#3B82F6';
+    }
+    
     document.body.appendChild(toast);
     
+    // Animar entrada
     setTimeout(() => {
-        toast.classList.add('show');
+        toast.style.transform = 'translateX(0)';
     }, 100);
     
+    // Animar saída e remover
     setTimeout(() => {
-        toast.classList.remove('show');
+        toast.style.transform = 'translateX(400px)';
         setTimeout(() => toast.remove(), 300);
     }, 5000);
 }
@@ -381,18 +431,24 @@ function escapeHtml(str = '') {
 document.addEventListener('DOMContentLoaded', () => {
     carregarArtigos();
     
-    document.getElementById('bulkDeleteBtn')?.addEventListener('click', () => {
-        const selected = Array.from(document.querySelectorAll('.article-checkbox:checked'));
-        if (selected.length === 0) {
-            showToast('Selecione pelo menos um artigo', 'warning');
-            return;
-        }
-        
-        if (confirm(`Tem certeza que deseja excluir ${selected.length} artigo(s)?`)) {
-            selected.forEach(checkbox => {
-                const card = checkbox.closest('.article-card');
-                deleteArticle(card.dataset.id, card);
-            });
-        }
-    });
+    // Event listener para exclusão em lote
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', () => {
+            const selected = Array.from(document.querySelectorAll('.article-checkbox:checked'));
+            if (selected.length === 0) {
+                showToast('Selecione pelo menos um artigo', 'warning');
+                return;
+            }
+            
+            if (confirm(`Tem certeza que deseja excluir ${selected.length} artigo(s)?`)) {
+                selected.forEach(checkbox => {
+                    const card = checkbox.closest('.article-card');
+                    const deleteBtn = card.querySelector('.delete-btn');
+                    const artigoId = deleteBtn.getAttribute('data-id');
+                    deleteArticle(artigoId, card);
+                });
+            }
+        });
+    }
 });
