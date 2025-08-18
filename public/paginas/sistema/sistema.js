@@ -11,12 +11,78 @@ document.addEventListener('DOMContentLoaded', function () {
     const messageContent = document.getElementById('messageContent');
     const messageClose = document.getElementById('messageClose');
 
-    // Detecção mais robusta de dispositivos móveis
+    // Verificar autenticação na inicialização
+    checkAuthentication();
+
+    // Função para verificar autenticação
+    async function checkAuthentication() {
+        try {
+            const response = await authenticatedFetch('https://sistema-barrueco.onrender.com/api');
+            
+            if (!response || !response.ok) {
+                console.log('Não autenticado, redirecionando...');
+                // Tentar obter token do localStorage
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = '/login';
+                    return;
+                }
+            }
+            console.log('Usuário autenticado');
+        } catch (error) {
+            console.error('Erro na verificação de autenticação:', error);
+            window.location.href = '/login';
+        }
+    }
+
+    // Função para fazer requisições autenticadas
+    async function authenticatedFetch(url, options = {}) {
+        const baseOptions = {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+            }
+        };
+
+        // Pega o token do localStorage se existir
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            baseOptions.headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        // Merge das opções
+        const finalOptions = {
+            ...baseOptions,
+            ...options,
+            headers: {
+                ...baseOptions.headers,
+                ...options.headers
+            }
+        };
+
+        try {
+            const response = await fetch(url, finalOptions);
+            
+            // Se retornar 401, limpa token e redireciona
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                console.log('Token inválido, redirecionando para login');
+                window.location.href = '/login';
+                return null;
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('Erro na requisição autenticada:', error);
+            throw error;
+        }
+    }
+
+    // Detecção de dispositivos
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                      window.innerWidth <= 768 || 
                      ('ontouchstart' in window);
     
-    // Detecção mais precisa do Safari
     const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
@@ -29,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (publishBtn) {
             publishBtn.disabled = true;
+            publishBtn.textContent = 'Publicando...';
         }
     }
 
@@ -39,13 +106,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (publishBtn) {
             publishBtn.disabled = false;
+            publishBtn.textContent = '🚀 Publicar Artigo';
         }
     }
 
     // Função para mostrar mensagem toast
     function showMessage(msg, type) {
         if (!messageToast || !messageIcon || !messageContent) {
-            alert(msg); // Fallback para alert se elementos não existirem
+            alert(msg);
             return;
         }
 
@@ -64,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
             messageToast.classList.add('show');
         }, 100);
 
-        // Auto-hide após 6 segundos (mais tempo para mobile)
         setTimeout(() => {
             hideMessage();
         }, 6000);
@@ -95,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Função de validação melhorada
+    // Função de validação
     function validateForm() {
         const errors = [];
         
@@ -115,10 +182,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return errors;
     }
 
-    // Função para fazer a requisição com retry
+    // Função para fazer a requisição
     async function submitForm(formData, retryCount = 0) {
-        const maxRetries = isMobile ? 2 : 1;
-        const timeoutDuration = isMobile ? 25000 : 12000; // Mais tempo para mobile
+        const maxRetries = 2;
+        const timeoutDuration = 15000;
         
         const controller = new AbortController();
         const timeout = setTimeout(() => {
@@ -126,87 +193,55 @@ document.addEventListener('DOMContentLoaded', function () {
         }, timeoutDuration);
 
         try {
-            // Configurações específicas por dispositivo
-            const fetchOptions = {
+            console.log('Enviando dados:', Object.fromEntries(formData));
+
+            const response = await authenticatedFetch('https://sistema-barrueco.onrender.com/postArt', {
                 method: 'POST',
                 body: formData,
-                signal: controller.signal,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            };
-
-            // Configurações específicas para dispositivos móveis
-            if (isMobile) {
-                fetchOptions.headers['Cache-Control'] = 'no-cache, no-store';
-                fetchOptions.headers['Pragma'] = 'no-cache';
-                
-                // Para iOS Safari
-                if (isIOS || isSafari) {
-                    fetchOptions.credentials = 'omit';
-                    fetchOptions.headers['X-Requested-With'] = 'XMLHttpRequest';
-                    fetchOptions.mode = 'cors';
-                } else {
-                    fetchOptions.credentials = 'same-origin';
-                }
-            } else {
-                fetchOptions.credentials = 'include';
-            }
-
-            console.log('Enviando requisição:', fetchOptions);
-
-            const response = await fetch('https://sistema-barrueco.onrender.com/postArt', fetchOptions);
+                signal: controller.signal
+            });
             
             clearTimeout(timeout);
 
-            // Log da resposta para debug
+            if (!response) {
+                // authenticatedFetch já tratou o erro 401
+                return;
+            }
+
             console.log('Status da resposta:', response.status);
             console.log('Headers:', Object.fromEntries(response.headers.entries()));
 
-            // Verificação do content-type mais flexível
+            // Verificação mais rigorosa do content-type
             const contentType = response.headers.get('content-type') || '';
-            let result;
+            console.log('Content-Type:', contentType);
 
-            if (contentType.includes('application/json')) {
-                result = await response.json();
-            } else {
-                // Tenta extrair JSON da resposta de texto
+            if (!contentType.includes('application/json')) {
                 const textResponse = await response.text();
-                console.log('Resposta de texto:', textResponse.substring(0, 300));
+                console.log('Resposta HTML/texto:', textResponse.substring(0, 500));
                 
-                try {
-                    // Procura por JSON na resposta
-                    const jsonMatch = textResponse.match(/\{.*\}/);
-                    if (jsonMatch) {
-                        result = JSON.parse(jsonMatch[0]);
-                    } else {
-                        throw new Error('Formato de resposta inválido');
-                    }
-                } catch (parseError) {
-                    console.error('Erro ao parsear resposta:', parseError);
-                    
-                    // Se a resposta indica sucesso mas não conseguimos parsear
-                    if (response.ok) {
-                        result = { msg: 'Artigo enviado com sucesso!' };
-                    } else {
-                        throw new Error(`Erro do servidor: ${response.status}`);
-                    }
+                // Se recebeu HTML, provavelmente perdeu a autenticação
+                if (textResponse.includes('<!DOCTYPE html>') || textResponse.includes('<html>')) {
+                    throw new Error('Você foi desconectado. Por favor, faça login novamente.');
                 }
+                
+                throw new Error('Servidor retornou formato inválido');
             }
+
+            const result = await response.json();
+            console.log('Resposta JSON:', result);
 
             return { response, result };
 
         } catch (error) {
             clearTimeout(timeout);
             
-            // Retry logic para dispositivos móveis
             if (retryCount < maxRetries && 
                 (error.name === 'AbortError' || 
                  error.message.includes('fetch') || 
                  error.message.includes('network'))) {
                 
                 console.log(`Tentativa ${retryCount + 1} falhou, tentando novamente...`);
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Aguarda 2s
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 return submitForm(formData, retryCount + 1);
             }
             
@@ -214,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Event listener do formulário principal
+    // Event listener do formulário
     if (articleForm) {
         articleForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -240,42 +275,58 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('titulo', tituloInput.value.trim());
             formData.append('conteudo', conteudoInput.value.trim());
             formData.append('autor', autorInput.value.trim());
-            formData.append('data', dataInput.value);
+            
+            // Formatear a data corretamente
+            const dataValue = dataInput.value;
+            if (dataValue) {
+                // Converter datetime-local para formato ISO
+                const date = new Date(dataValue);
+                formData.append('data', date.toISOString());
+            } else {
+                // Usar data atual se não especificada
+                formData.append('data', new Date().toISOString());
+            }
 
-            // Log dos dados para debug
-            console.log('Dados do formulário:', {
+            console.log('Dados preparados:', {
                 titulo: tituloInput.value.trim(),
                 autor: autorInput.value.trim(),
-                data: dataInput.value
+                data: dataValue || 'atual'
             });
 
             showLoading();
 
             try {
-                const { response, result } = await submitForm(formData);
+                const result = await submitForm(formData);
                 
-                // Adiciona delay visual (menor para mobile)
-                const delay = isMobile ? 1500 : 2000;
+                if (!result) {
+                    // Erro já foi tratado (provavelmente redirecionamento)
+                    return;
+                }
+
+                const { response, result: data } = result;
                 
                 setTimeout(() => {
                     hideLoading();
                     
                     if (!response.ok) {
-                        showMessage(result.msg || `Erro ${response.status}: ${response.statusText}`, 'error');
+                        let errorMsg = data.msg || `Erro ${response.status}: ${response.statusText}`;
+                        showMessage(errorMsg, 'error');
                         shakeInputs();
                         return;
                     }
 
                     // Sucesso
-                    showMessage(result.msg || 'Artigo publicado com sucesso!', 'success');
+                    showMessage(data.msg || 'Artigo publicado com sucesso!', 'success');
                     
-                    // Limpar formulário
-                    if (tituloInput) tituloInput.value = '';
-                    if (conteudoInput) conteudoInput.value = '';
-                    if (autorInput) autorInput.value = '';
-                    if (dataInput) dataInput.value = '';
+                    // Limpar formulário após sucesso
+                    setTimeout(() => {
+                        if (tituloInput) tituloInput.value = '';
+                        if (conteudoInput) conteudoInput.value = '';
+                        if (autorInput) autorInput.value = '';
+                        if (dataInput) dataInput.value = '';
+                    }, 1000);
 
-                }, delay);
+                }, 1500);
 
             } catch (error) {
                 console.error('Erro completo:', error);
@@ -285,14 +336,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     let errorMsg = 'Erro desconhecido ao enviar artigo';
                     
-                    if (error.name === 'AbortError') {
-                        errorMsg = isMobile ? 
-                            "Conexão lenta detectada. Tente novamente." : 
-                            "Tempo limite excedido. Tente novamente.";
+                    if (error.message.includes('desconectado') || error.message.includes('login')) {
+                        errorMsg = error.message;
+                        // Redirecionar para login após mostrar a mensagem
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 3000);
+                    } else if (error.name === 'AbortError') {
+                        errorMsg = "Tempo limite excedido. Tente novamente.";
                     } else if (error.message.includes('Failed to fetch') || error.message.includes('network')) {
-                        errorMsg = isMobile ?
-                            "Erro de rede. Verifique sua conexão 3G/4G/WiFi." :
-                            "Erro de conexão. Verifique sua internet.";
+                        errorMsg = "Erro de conexão. Verifique sua internet.";
                     } else if (error.message.includes('blocked') || error.message.includes('cors')) {
                         errorMsg = "Bloqueio de segurança detectado. Tente outro navegador.";
                     } else {
@@ -301,11 +354,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     showMessage(errorMsg, 'error');
                     shakeInputs();
-                }, 1500);
+                }, 1000);
             }
         });
     }
 
-    // Log de inicialização
-    console.log('Script carregado com sucesso para:', isMobile ? 'Mobile' : 'Desktop');
+    console.log('Script carregado com sucesso');
 });
