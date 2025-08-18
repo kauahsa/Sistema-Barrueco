@@ -95,8 +95,7 @@ async function carregarArtigos() {
         const fetchOptions = {
             credentials: 'include',
             headers: {
-                'Accept': 'application/json',
-                'Cache-Control': 'no-cache'
+                'Accept': 'application/json'
             }
         };
 
@@ -110,25 +109,8 @@ async function carregarArtigos() {
         const contentType = resp.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
             const errorText = await resp.text();
-            
-            // Tentativa de fallback para Safari
-            if (isSafari) {
-                try {
-                    const jsonStart = errorText.indexOf('{');
-                    if (jsonStart > -1) {
-                        const jsonString = errorText.substring(jsonStart);
-                        const result = JSON.parse(jsonString);
-                        if (result.msg) {
-                            throw new Error(result.msg);
-                        }
-                    }
-                } catch (e) {
-                    console.error('Fallback parsing failed:', e);
-                }
-            }
-            
             throw new Error(isSafari ? 
-                'O Safari bloqueou a requisição. Tente desativar a Prevenção Contra Rastreamento.' : 
+                'O Safari bloqueou a requisição. Tente desativar a Prevenção Contra Rastreamento nas configurações.' : 
                 'Resposta inválida do servidor');
         }
         
@@ -154,7 +136,7 @@ async function carregarArtigos() {
 
         artigos.forEach(artigo => {
             const artigoCard = document.createElement('div');
-            artigoCard.classList.add('article-card');
+            artigoCard.className = 'article-card';
             artigoCard.dataset.status = artigo.status || 'draft';
             artigoCard.dataset.pdf = artigo.pdf || '';
             artigoCard.dataset.date = artigo.data || new Date().toISOString();
@@ -192,7 +174,7 @@ async function carregarArtigos() {
             container.appendChild(artigoCard);
         });
 
-        // Atualiza eventos
+        // Atualiza eventos dos botões
         document.querySelectorAll('.btn-danger').forEach(btn => {
             btn.addEventListener('click', handleDeleteArticle);
         });
@@ -201,6 +183,7 @@ async function carregarArtigos() {
             btn.addEventListener('click', handleEditArticle);
         });
 
+        // Atualiza checkboxes
         document.querySelectorAll('.article-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', updateBulkActions);
         });
@@ -229,6 +212,105 @@ function handleDeleteArticle(e) {
     }
 }
 
+function abrirFormularioEdicao(card) {
+    const artigoId = card.dataset.id;
+    if (!artigoId) {
+        showToast('ID do artigo não encontrado', 'error');
+        console.error('data-id inexistente no card:', card);
+        return;
+    }
+
+    const titulo = card.querySelector('.article-title')?.textContent?.trim() || '';
+    const excerpt = card.querySelector('.article-excerpt')?.textContent?.replace('...', '').trim() || '';
+    const metaItems = card.querySelectorAll('.article-meta .meta-item');
+    const dataRaw = card.dataset.date || '';
+    const autor = (metaItems[1] ? metaItems[1].textContent.replace('👤', '').trim() : '') || '';
+
+    const dataIso = dataRaw ? new Date(dataRaw).toISOString().split('T')[0] : '';
+
+    // Fechar modal existente se houver
+    const modalExistente = document.getElementById('editModal');
+    if (modalExistente) modalExistente.remove();
+
+    const formHtml = `
+      <div id="editModal" class="modal">
+        <div class="modal-content">
+          <h2>Editar Artigo</h2>
+          <label>Título</label>
+          <input type="text" id="editTitulo" value="${escapeHtml(titulo)}">
+          <label>Conteúdo</label>
+          <textarea id="editConteudo">${escapeHtml(excerpt)}</textarea>
+          <label>Autor</label>
+          <input type="text" id="editAutor" value="${escapeHtml(autor)}">
+          <label>Data</label>
+          <input type="date" id="editData" value="${dataIso}">
+          <div class="modal-actions">
+            <button id="saveEdit" class="btn btn-primary">Salvar</button>
+            <button id="cancelEdit" class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', formHtml);
+
+    // Adicionar evento para fechar modal ao clicar no fundo escuro
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.remove();
+        }
+    });
+
+    document.getElementById('cancelEdit').addEventListener('click', function() {
+        document.getElementById('editModal').remove();
+    });
+
+    document.getElementById('saveEdit').addEventListener('click', async function() {
+        const saveBtn = this;
+        const originalText = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Salvando...';
+
+        try {
+            const formData = new FormData();
+            formData.append('titulo', document.getElementById('editTitulo').value);
+            formData.append('conteudo', document.getElementById('editConteudo').value);
+            formData.append('autor', document.getElementById('editAutor').value);
+            formData.append('data', document.getElementById('editData').value);
+
+            const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, {
+                method: 'PUT',
+                body: formData,
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const contentType = resp.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await resp.text();
+                throw new Error(`Resposta não é JSON: ${text.substring(0, 100)}`);
+            }
+
+            const result = await resp.json();
+
+            if (!resp.ok) {
+                throw new Error(result.msg || 'Erro ao atualizar artigo');
+            }
+
+            showToast('✅ Artigo atualizado com sucesso!', 'success');
+            document.getElementById('editModal').remove();
+            carregarArtigos();
+        } catch (err) {
+            console.error('Falha na requisição PUT:', err);
+            showToast(`❌ Erro: ${err.message}`, 'error');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = originalText;
+        }
+    });
+}
 function handleEditArticle(e) {
     const card = e.target.closest('.article-card');
     abrirFormularioEdicao(card);
@@ -250,7 +332,6 @@ async function deleteArticle(artigoId, cardElement) {
 
         const resp = await fetch(`https://sistema-barrueco.onrender.com/artigos/${artigoId}`, fetchOptions);
 
-        // Verificar se a resposta é JSON
         const contentType = resp.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
             const errorText = await resp.text();
@@ -262,13 +343,13 @@ async function deleteArticle(artigoId, cardElement) {
         if (resp.ok) {
             cardElement.remove();
             updateBulkActions();
-            showToast('✅ Artigo excluído com sucesso', 'success');
+            showToast('Artigo excluído com sucesso', 'success');
         } else {
             throw new Error(result.msg || 'Erro ao excluir artigo');
         }
     } catch (err) {
         console.error('Erro ao excluir artigo:', err);
-        showToast(`❌ Falha ao excluir: ${err.message}`, 'error');
+        showToast(`Falha ao excluir: ${err.message}`, 'error');
     }
 }
 
@@ -307,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        if (confirm(`Excluir ${selected.length} artigo(s)?`)) {
+        if (confirm(`Tem certeza que deseja excluir ${selected.length} artigo(s)?`)) {
             selected.forEach(checkbox => {
                 const card = checkbox.closest('.article-card');
                 deleteArticle(card.dataset.id, card);
