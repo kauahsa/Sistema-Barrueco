@@ -79,7 +79,7 @@ for (const [route, file] of Object.entries(publicPages)) {
     app.get(route, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', file)));
 }
 app.get('/sistema', checkToken, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema', 'sistema.html')));
-app.get('/sistema/artigos', checkToken, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema', 'artigos.html')));
+app.get('/sistema/artigo', checkToken, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema', 'artigos.html')));
 
 
 // --- ROTAS DE API ---
@@ -183,16 +183,17 @@ apiRouter.put('/artigos/:id', async (req, res) => {
     }
 });
 
-app.use('/', apiRouter);
+
 app.use('/api', apiRouter);
 
 // Rota pública para listar artigos (não precisa de token)
 app.get('/artigos', async (req, res) => {
     try {
-        const artigos = await Artigo.find().sort({ data: -1 });
-        res.json(artigos);
-    } catch (error) {
-        res.status(500).json({ msg: 'Erro interno ao buscar artigos' });
+        const artigos = await Artigo.find().sort({ data: -1 }).limit(10);
+        res.json(artigos); // <<< TEM QUE RESPONDER JSON
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao buscar artigos' });
     }
 });
 
@@ -211,6 +212,7 @@ app.get('/artigos/:id', async (req, res) => {
         res.status(500).json({ msg: 'Erro interno ao buscar artigo' });
     }
 });
+   
 
 
 // --- CONEXÃO COM O BANCO DE DADOS E INICIALIZAÇÃO DO SERVIDOR ---

@@ -1942,7 +1942,7 @@ noticias = noticias.slice(0, 1);
         }
 
         // Função para carregar artigos
-      async function carregarArtigos() {
+     async function carregarArtigos() {
     try {
         // Mostrar loading
         const container = document.getElementById('artigos');
@@ -1959,11 +1959,13 @@ noticias = noticias.slice(0, 1);
         }
         
         let artigos = await res.json();
+
+        // Limita a quantidade exibida (ex: 3 artigos)
         artigos = artigos.slice(0, 1);
 
         container.innerHTML = '';
 
-        if (artigos.length === 0) {
+        if (!artigos || artigos.length === 0) {
             container.innerHTML = `
                 <div class="error-container" style="border-color: var(--accent);">
                     <div class="error-icon" style="color: var(--accent);">
@@ -1977,11 +1979,19 @@ noticias = noticias.slice(0, 1);
         }
 
         artigos.forEach((a, index) => {
-            const dataFormatada = new Date(a.data).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
+            // Garante que os campos existem
+            const titulo = a.titulo || "Sem título";
+            const conteudo = a.conteudo || "Conteúdo não disponível";
+            const autor = a.autor || "Desconhecido";
+            
+            // Formata a data apenas se existir
+            const dataFormatada = a.data 
+                ? new Date(a.data).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                })
+                : "Data não informada";
 
             const isDestaque = index === 0;
             const classeDestaque = isDestaque ? 'featured' : '';
@@ -1991,15 +2001,17 @@ noticias = noticias.slice(0, 1);
             artigoElement.className = `article-item ${classeDestaque}`;
             artigoElement.style.animationDelay = `${index * 0.15}s`;
             artigoElement.innerHTML = `
-                <h3 class="article-title">${a.titulo}</h3>
+                <h3 class="article-title">${titulo}</h3>
                 <p class="article-date">${dataFormatada}</p>
-                <p class="article-content">${a.conteudo.length > 200 ? a.conteudo.substring(0, 200) + '...' : a.conteudo}</p>
-                <p class="article-author"><strong>Autor:</strong> ${a.autor}</p>
+                <p class="article-content">
+                    ${conteudo.length > 200 ? conteudo.substring(0, 200) + '...' : conteudo}
+                </p>
+                <p class="article-author"><strong>Autor:</strong> ${autor}</p>
             `;
 
             // Criar link que aponta para paginas/artigo.html
             const linkElement = document.createElement('a');
-            linkElement.href = `paginas/artigo.html?id=${a._id}`;  // Alteração aqui
+            linkElement.href = `paginas/artigo.html?id=${a._id}`;
             linkElement.style.textDecoration = 'none';
             linkElement.style.color = 'inherit';
             linkElement.style.display = 'block';
@@ -2032,6 +2044,7 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarNoticias();
     carregarArtigos();
 });
+
 
 // Auto-refresh a cada 5 minutos
 setInterval(() => {
