@@ -7,10 +7,17 @@ const path = require('path');
 const cors = require('cors');
 const Parser = require('rss-parser');
 
-const parser = new Parser();
+// ********** CORREÇÃO APLICADA AQUI **********
+// Inicializa o Parser com User-Agent para simular um navegador e evitar Status 403 em produção.
+const parser = new Parser({
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+});
+// ********************************************
+
 
 // Importa os models
-// Note: Assumi que seus models estão em ./backend/models, conforme a última imagem que enviou.
 const admins = require('./backend/models/admins');
 const Artigo = require('./backend/models/artigo');
 
@@ -28,7 +35,7 @@ app.use(cors({
         const allowedOrigins = [
             'https://barruecoadvogados.com.br',
             'http://localhost:3000',
-            'https://sistema-barrueco-p8y2.onrender.com', // Removido '/' extra para ser mais limpo
+            'https://sistema-barrueco-p8y2.onrender.com', 
             'http://localhost:3001',
         ];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -40,8 +47,7 @@ app.use(cors({
     credentials: true,
 }));
 
-// ********** CORRIGIDO: Arquivos estáticos (public) **********
-// O caminho agora é direto: path.join(__dirname, 'public')
+// CORRIGIDO: Arquivos estáticos (Removido '..')
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -70,7 +76,7 @@ function checkToken(req, res, next) {
 
 
 // --- 3. ROTAS DE RENDERIZAÇÃO DE PÁGINAS HTML ---
-// ********** CORRIGIDO: Rotas de renderização (Removido '..') **********
+// CORRIGIDO: Rotas de renderização (Removido '..')
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 
@@ -80,12 +86,12 @@ const publicPages = {
     '/andre_andrade': 'paginas/andre_andrade.html', '/carolina': 'paginas/carolina.html', '/zacarias': 'paginas/zacarias.html',
 };
 for (const [route, file] of Object.entries(publicPages)) {
-    // ********** CORRIGIDO: Loop de rotas (Removido '..') **********
+    // CORRIGIDO: Loop de rotas (Removido '..')
     app.get(route, (req, res) => res.sendFile(path.join(__dirname, 'public', file)));
 }
 
 // Rotas protegidas para renderizar páginas do sistema
-// ********** CORRIGIDO: Rotas protegidas (Removido '..') **********
+// CORRIGIDO: Rotas protegidas (Removido '..')
 app.get('/sistema', checkToken, (req, res) => res.sendFile(path.join(__dirname, 'public', 'paginas', 'sistema', 'sistema.html')));
 app.get('/sistema/artigo', checkToken, (req, res) => res.sendFile(path.join(__dirname, 'public', 'paginas', 'sistema', 'artigos.html')));
 
@@ -166,7 +172,12 @@ async function buscarNoticias() {
         { nome: 'STF', url: 'https://portal.stf.jus.br/rss/STF-noticias.xml' },
         { nome: 'STJ', url: 'https://www.stj.jus.br/sites/portalp/Paginas/rss.aspx' },
         { nome: 'Conjur', url: 'https://www.conjur.com.br/rss.xml' },
-        { nome: 'Migalhas', url: 'https://www.migalhas.com.br/rss' }
+        
+        // ********** NOVAS FONTES ADICIONADAS **********
+        { nome: 'Jota', url: 'https://www.jota.info/feed' }, 
+        { nome: 'Valor Econômico (Legislação)', url: 'https://valor.globo.com/rss/valor/legislacao.xml' }, 
+        
+        { nome: 'Migalhas', url: 'https://www.migalhas.com.br/rss' } // Verifique se o URL ainda está dando 404
     ];
     const todasNoticias = [];
     for (const fonte of fontes) {
