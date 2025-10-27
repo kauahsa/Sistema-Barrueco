@@ -10,8 +10,8 @@ const Parser = require('rss-parser');
 const parser = new Parser();
 
 // Importa os models
-const admins = require('./models/admins');
-const Artigo = require('./models/artigo');
+const admins = require('./backend/models/admins');
+const Artigo = require('./backend/models/artigo');
 
 const app = express();
 
@@ -27,7 +27,7 @@ app.use(cors({
         const allowedOrigins = [
             'https://barruecoadvogados.com.br',
             'http://localhost:3000',
-            'https://sistema-barrueco.onrender.com',
+            'https://sistema-barrueco-p8y2.onrender.com/',
             'http://localhost:3001',
         ];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
