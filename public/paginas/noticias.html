@@ -837,272 +837,220 @@
   </footer>
 
   <script>
-    let noticiasOriginais = [];
-    let filtroAtivo = 'todas';
+  let noticiasOriginais = [];
+  let filtroAtivo = 'todas';
 
-    // Função para mostrar loading
-    function mostrarLoading() {
-      const container = document.getElementById('noticias');
-      container.innerHTML = `
-        <div class="loading-container">
-          <div class="spinner"></div>
-        </div>
-      `;
-    }
+  function formatarDataISO(isoString) {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
 
-    // Função para mostrar erro
-    function mostrarErro(mensagem = 'Não foi possível carregar as notícias') {
-      const container = document.getElementById('noticias');
-      container.innerHTML = `
-        <div class="error-container">
-          <div class="error-icon">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <h3 class="error-title">Oops! Algo deu errado</h3>
-          <p class="error-message">${mensagem}</p>
-          <button class="retry-btn" onclick="carregarNoticias()">
-            <i class="fas fa-redo"></i> Tentar novamente
-          </button>
-        </div>
-      `;
-    }
+  function mostrarLoading() {
+    const container = document.getElementById('noticias');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="loading-container">
+        <div class="spinner"></div>
+      </div>
+    `;
+  }
 
-    // Função para carregar notícias
-    async function carregarNoticias() {
-      try {
-        mostrarLoading();
-        
-        const res = await fetch('https://sistema-barrueco.onrender.com/home/noticias');
-        
-        if (!res.ok) {
-          throw new Error(`Erro HTTP: ${res.status}`);
-        }
-        
-        let noticias = await res.json();
-        noticiasOriginais = noticias;
-        noticias = noticias.slice(0, 6);
-        
-        if (noticias.length === 0) {
-          mostrarErro('Nenhuma notícia encontrada no momento');
-          return;
-        }
-        
-        renderizarNoticias(noticias);
-        
-      } catch (error) {
-        console.error('Erro ao carregar notícias:', error);
-        
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          mostrarErro('Não foi possível conectar ao servidor. Verifique sua conexão.');
-        } else {
-          mostrarErro('Erro interno do servidor. Tente novamente em alguns minutos.');
-        }
-      }
-    }
+  function mostrarErro(mensagem = 'Não foi possível carregar as notícias') {
+    const container = document.getElementById('noticias');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="error-container">
+        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3 class="error-title">Oops! Algo deu errado</h3>
+        <p class="error-message">${mensagem}</p>
+        <button class="retry-btn" onclick="carregarNoticias()"><i class="fas fa-redo"></i> Tentar novamente</button>
+      </div>
+    `;
+  }
 
-    // Função para renderizar notícias
-    function renderizarNoticias(noticias) {
-      const container = document.getElementById('noticias');
-      container.innerHTML = '';
+  async function carregarNoticias() {
+    try {
+      mostrarLoading();
+      const res = await fetch('/home/noticias'); // URL relativa
+      if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
+      let noticias = await res.json();
+
+      // sanity check
+      if (!Array.isArray(noticias)) noticias = [];
+      noticiasOriginais = noticias;
+      noticias = noticias.slice(0, 6);
 
       if (noticias.length === 0) {
+        mostrarErro('Nenhuma notícia encontrada no momento');
+        return;
+      }
+
+      console.log('[noticias] recebidas:', noticias); // diagnóstico
+      renderizarNoticias(noticias);
+    } catch (error) {
+      console.error('Erro ao carregar notícias:', error);
+      if (error.name === 'TypeError' && `${error.message}`.includes('fetch')) {
+        mostrarErro('Não foi possível conectar ao servidor. Verifique sua conexão.');
+      } else {
+        mostrarErro('Erro interno do servidor. Tente novamente em alguns minutos.');
+      }
+    }
+  }
+
+  function renderizarNoticias(noticias) {
+    const container = document.getElementById('noticias');
+    if (!container) {
+      console.warn('[noticias] container #noticias não encontrado no DOM');
+      return;
+    }
+    container.innerHTML = '';
+
+    if (!noticias.length) {
+      container.innerHTML = `
+        <div class="error-container" style="border-color: var(--accent);">
+          <div class="error-icon" style="color: var(--accent);"><i class="fas fa-search"></i></div>
+          <h3 class="error-title">Nenhuma notícia encontrada</h3>
+          <p class="error-message">Não há notícias para o filtro selecionado</p>
+        </div>
+      `;
+      return;
+    }
+
+    noticias.forEach((n, index) => {
+      const dataFormatada = formatarDataISO(n.data);
+      const isDestaque = index === 0;
+      const classeDestaque = isDestaque ? 'destaque' : '';
+      const resumoSeguro = (n.resumo || '').toString();
+
+      container.insertAdjacentHTML('beforeend', `
+        <div class="noticia ${classeDestaque}" style="animation-delay: ${index * 0.1}s">
+          <div class="fonte">${n.fonte || 'Fonte não informada'}</div>
+          <a href="${n.link}" target="_blank" rel="noopener noreferrer"><h3>${n.titulo || 'Sem título'}</h3></a>
+          <p class="data">${dataFormatada}</p>
+          <p>${resumoSeguro || 'Resumo não disponível'}</p>
+        </div>
+      `);
+    });
+  }
+
+  function filtrarNoticias(filtro) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (event && event.target) event.target.classList.add('active');
+
+    filtroAtivo = filtro;
+    let noticiasFiltradas = [...noticiasOriginais];
+
+    switch (filtro) {
+      case 'destaque':
+        noticiasFiltradas = noticiasFiltradas.slice(0, 3);
+        break;
+      case 'recentes':
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        noticiasFiltradas = noticiasFiltradas.filter(n => {
+          const d = n.data ? new Date(n.data) : null;
+          return d && !isNaN(d) && d >= umaSemanaAtras;
+        });
+        break;
+      case 'juridicas':
+        noticiasFiltradas = noticiasFiltradas.filter(n => {
+          const t = (n.titulo || '').toLowerCase();
+          const r = (n.resumo || '').toLowerCase();
+          return t.includes('justiça') || t.includes('tribunal') || t.includes('lei') || t.includes('direito') || r.includes('jurídic');
+        });
+        break;
+      case 'todas':
+      default:
+        break;
+    }
+
+    renderizarNoticias(noticiasFiltradas);
+  }
+
+  async function carregarArtigos() {
+    const container = document.getElementById('artigos');
+    if (!container) {
+      console.warn('[artigos] container #artigos não encontrado no DOM');
+      return;
+    }
+    try {
+      container.innerHTML = `
+        <div class="artigos-loading"><div class="spinner"></div></div>
+      `;
+      const res = await fetch('/home/artigos'); // URL relativa
+      if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
+      const artigos = await res.json();
+      container.innerHTML = '';
+
+      if (!Array.isArray(artigos) || artigos.length === 0) {
         container.innerHTML = `
           <div class="error-container" style="border-color: var(--accent);">
-            <div class="error-icon" style="color: var(--accent);">
-              <i class="fas fa-search"></i>
-            </div>
-            <h3 class="error-title">Nenhuma notícia encontrada</h3>
-            <p class="error-message">Não há notícias para o filtro selecionado</p>
+            <div class="error-icon" style="color: var(--accent);"><i class="fas fa-file-alt"></i></div>
+            <h3 class="error-title">Nenhum artigo encontrado</h3>
+            <p class="error-message">Não há artigos disponíveis no momento</p>
           </div>
         `;
         return;
       }
 
-      noticias.forEach((n, index) => {
-        const dataFormatada = new Date(n.data).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-
-        const isDestaque = index === 0; // Primeira notícia sempre em destaque
+      artigos.forEach((a, index) => {
+        const dataFormatada = formatarDataISO(a.data);
+        const isDestaque = index === 0;
         const classeDestaque = isDestaque ? 'destaque' : '';
 
-        container.innerHTML += `
-          <div class="noticia ${classeDestaque}" style="animation-delay: ${index * 0.1}s">
-            <div class="fonte">${n.fonte || 'Fonte não informada'}</div>
-            <a href="${n.link}" target="_blank" rel="noopener noreferrer">
-              <h3>${n.titulo}</h3>
-            </a>
-            <p class="data">${dataFormatada}</p>
-            <p>${n.resumo || 'Resumo não disponível'}</p>
-          </div>
-        `;
-      });
-    }
+        const limitarConteudo = (texto, limite = 200) => {
+          if (!texto) return '';
+          const str = texto.toString();
+          return str.length <= limite ? str : str.substring(0, limite) + '...';
+        };
+        const conteudoResumido = limitarConteudo(a.conteudo);
 
-    // Função para filtrar notícias
-    function filtrarNoticias(filtro) {
-      // Atualizar botões
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-
-      filtroAtivo = filtro;
-      let noticiasFiltradas = [...noticiasOriginais];
-
-      switch (filtro) {
-        case 'destaque':
-          noticiasFiltradas = noticiasFiltradas.slice(0, 3);
-          break;
-        case 'recentes':
-          const umaSemanaAtras = new Date();
-          umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
-          noticiasFiltradas = noticiasFiltradas.filter(n => 
-            new Date(n.data) >= umaSemanaAtras
-          );
-          break;
-        case 'juridicas':
-          noticiasFiltradas = noticiasFiltradas.filter(n => 
-            n.titulo.toLowerCase().includes('justiça') ||
-            n.titulo.toLowerCase().includes('tribunal') ||
-            n.titulo.toLowerCase().includes('lei') ||
-            n.titulo.toLowerCase().includes('direito') ||
-            n.resumo.toLowerCase().includes('jurídic')
-          );
-          break;
-        case 'todas':
-        default:
-          // Mantém todas as notícias
-          break;
-      }
-
-      renderizarNoticias(noticiasFiltradas);
-    }
-
-    // Função para carregar artigos - VERSÃO CORRIGIDA
-   async function carregarArtigos() {
-    try {
-        // Mostrar loading
-        const container = document.getElementById('artigos');
-        container.innerHTML = `
-            <div class="artigos-loading">
-                <div class="spinner"></div>
-            </div>
+        const artigoElement = document.createElement('div');
+        artigoElement.className = `artigo ${classeDestaque}`;
+        artigoElement.style.animationDelay = `${index * 0.15}s`;
+        artigoElement.innerHTML = `
+          <h3>${a.titulo || 'Sem título'}</h3>
+          <p class="data">${dataFormatada}</p>
+          <p class="conteudo">${conteudoResumido}</p>
+          <p class="autor"><strong>Autor:</strong> ${a.autor || '—'}</p>
+          ${(a.conteudo || '').length > 200 ? '<p class="ler-mais"></p>' : ''}
         `;
 
-        const res = await fetch('https://sistema-barrueco.onrender.com/home/artigos');
-        
-        if (!res.ok) {
-            throw new Error(`Erro HTTP: ${res.status}`);
-        }
-        
-        const artigos = await res.json();
-
-        container.innerHTML = '';
-
-        if (artigos.length === 0) {
-            container.innerHTML = `
-                <div class="error-container" style="border-color: var(--accent);">
-                    <div class="error-icon" style="color: var(--accent);">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <h3 class="error-title">Nenhum artigo encontrado</h3>
-                    <p class="error-message">Não há artigos disponíveis no momento</p>
-                </div>
-            `;
-            return;
-        }
-
-        artigos.forEach((a, index) => {
-            const dataFormatada = new Date(a.data).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            const isDestaque = index === 0; // Primeiro artigo sempre em destaque
-            const classeDestaque = isDestaque ? 'destaque' : '';
-            
-            // Função para limitar o conteúdo a 200 caracteres e adicionar "..."
-            const limitarConteudo = (texto, limite = 200) => {
-                if (!texto) return '';
-                if (texto.length <= limite) return texto;
-                return texto.substring(0, limite) + '...';
-            };
-            
-            // Obter o conteúdo resumido
-            const conteudoResumido = limitarConteudo(a.conteudo);
-
-            // Criar elemento de artigo
-            const artigoElement = document.createElement('div');
-            artigoElement.className = `artigo ${classeDestaque}`;
-            artigoElement.style.animationDelay = `${index * 0.15}s`;
-            artigoElement.innerHTML = `
-                <h3>${a.titulo}</h3>
-                <p class="data">${dataFormatada}</p>
-                <p class="conteudo">${conteudoResumido}</p>
-                <p class="autor"><strong>Autor:</strong> ${a.autor}</p>
-                ${a.conteudo.length > 200 ? '<p class="ler-mais"></p>' : ''}
-            `;
-
-            // Criar link que envolve todo o artigo
-            const linkElement = document.createElement('a');
-            linkElement.href = `artigo.html?id=${a._id}`;
-            linkElement.style.textDecoration = 'none';
-            linkElement.style.color = 'inherit';
-            linkElement.style.display = 'block';
-            
-            // Adicionar o artigo dentro do link
-            linkElement.appendChild(artigoElement);
-            
-            // Adicionar ao container
-            container.appendChild(linkElement);
-        });
+        const linkElement = document.createElement('a');
+        linkElement.href = `artigo.html?id=${a._id}`;
+        linkElement.style.textDecoration = 'none';
+        linkElement.style.color = 'inherit';
+        linkElement.style.display = 'block';
+        linkElement.appendChild(artigoElement);
+        container.appendChild(linkElement);
+      });
 
     } catch (error) {
-        console.error('Erro ao carregar artigos:', error);
-        const container = document.getElementById('artigos');
-        
-        container.innerHTML = `
-            <div class="error-container">
-                <div class="error-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <h3 class="error-title">Erro ao carregar artigos</h3>
-                <p class="error-message">Não foi possível carregar os artigos. Tente novamente.</p>
-                <button class="retry-btn" onclick="carregarArtigos()">
-                    <i class="fas fa-redo"></i> Tentar novamente
-                </button>
-            </div>
-        `;
+      console.error('Erro ao carregar artigos:', error);
+      container.innerHTML = `
+        <div class="error-container">
+          <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3 class="error-title">Erro ao carregar artigos</h3>
+          <p class="error-message">Não foi possível carregar os artigos. Tente novamente.</p>
+          <button class="retry-btn" onclick="carregarArtigos()"><i class="fas fa-redo"></i> Tentar novamente</button>
+        </div>
+      `;
     }
-}
+  }
 
-// Adicione este estilo no seu CSS para o "Ler mais"
-/*
-.ler-mais {
-    color: var(--accent);
-    font-weight: 600;
-    text-align: right;
-    margin-top: 10px;
-    font-style: italic;
-}
-*/
-
-// Carregar notícias e artigos ao carregar a página
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     carregarNoticias();
     carregarArtigos();
-});
+  });
 
-// Opcional: Auto-refresh a cada 5 minutos
-setInterval(() => {
+  setInterval(() => {
     if (document.visibilityState === 'visible') {
-        carregarNoticias();
+      carregarNoticias();
     }
-}, 5 * 60 * 1000);
-  </script>
+  }, 5 * 60 * 1000);
+</script>
+
 </body>
 </html>
