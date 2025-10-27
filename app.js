@@ -10,6 +10,7 @@ const Parser = require('rss-parser');
 const parser = new Parser();
 
 // Importa os models
+// Note: Assumi que seus models estão em ./backend/models, conforme a última imagem que enviou.
 const admins = require('./backend/models/admins');
 const Artigo = require('./backend/models/artigo');
 
@@ -27,7 +28,7 @@ app.use(cors({
         const allowedOrigins = [
             'https://barruecoadvogados.com.br',
             'http://localhost:3000',
-            'https://sistema-barrueco-p8y2.onrender.com/',
+            'https://sistema-barrueco-p8y2.onrender.com', // Removido '/' extra para ser mais limpo
             'http://localhost:3001',
         ];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -39,7 +40,9 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// ********** CORRIGIDO: Arquivos estáticos (public) **********
+// O caminho agora é direto: path.join(__dirname, 'public')
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // --- 2. MIDDLEWARE DE AUTENTICAÇÃO (CHECK TOKEN) ---
@@ -67,8 +70,9 @@ function checkToken(req, res, next) {
 
 
 // --- 3. ROTAS DE RENDERIZAÇÃO DE PÁGINAS HTML ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'login.html')));
+// ********** CORRIGIDO: Rotas de renderização (Removido '..') **********
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 
 const publicPages = {
     '/sobre': 'paginas/sobre.html', '/atuacao': 'paginas/atuacao.html', '/equipe': 'paginas/equipe.html',
@@ -76,12 +80,14 @@ const publicPages = {
     '/andre_andrade': 'paginas/andre_andrade.html', '/carolina': 'paginas/carolina.html', '/zacarias': 'paginas/zacarias.html',
 };
 for (const [route, file] of Object.entries(publicPages)) {
-    app.get(route, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', file)));
+    // ********** CORRIGIDO: Loop de rotas (Removido '..') **********
+    app.get(route, (req, res) => res.sendFile(path.join(__dirname, 'public', file)));
 }
 
 // Rotas protegidas para renderizar páginas do sistema
-app.get('/sistema', checkToken, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema', 'sistema.html')));
-app.get('/sistema/artigo', checkToken, (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'paginas', 'sistema', 'artigos.html')));
+// ********** CORRIGIDO: Rotas protegidas (Removido '..') **********
+app.get('/sistema', checkToken, (req, res) => res.sendFile(path.join(__dirname, 'public', 'paginas', 'sistema', 'sistema.html')));
+app.get('/sistema/artigo', checkToken, (req, res) => res.sendFile(path.join(__dirname, 'public', 'paginas', 'sistema', 'artigos.html')));
 
 
 // --- 4. ROTAS DE AUTENTICAÇÃO (LOGIN/LOGOUT) ---
